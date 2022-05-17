@@ -4,9 +4,21 @@ version: '3.1'
 services:
   node:
     image: node:18-alpine3.14
+    restart: always
+    depends_on:
+      - mongo
     entrypoint:
-      - npm install
-      - npm start 
+      - ash
+      - -c
+      - "npm install; npm start"
+    ports:
+      - 3000:3000
+    volumes: 
+      - ./:/kubehosting
+    working_dir:
+      /kubehosting
+    networks:
+      - kubehosting
 
   mongo:
     image: mongo
@@ -14,13 +26,26 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    volumes: 
+      - ./data:/data/db
+    networks: 
+      - kubehosting
 
   mongo-express:
     image: mongo-express
     restart: always
+    depends_on:
+      - mongo
     ports:
       - 8081:8081
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+    volumes: 
+      - ./data:/data/db
+    networks:
+      - kubehosting
+networks:
+  kubehosting:
+    driver: bridge
