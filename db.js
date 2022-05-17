@@ -10,7 +10,7 @@ db.serialize(function() {
   // create the database schema for the todos app
   db.run("CREATE TABLE IF NOT EXISTS users ( \
     id INTEGER PRIMARY KEY, \
-    username TEXT UNIQUE, \
+    email TEXT UNIQUE, \
     hashed_password BLOB, \
     salt BLOB \
   )");
@@ -22,13 +22,13 @@ db.serialize(function() {
     completed INTEGER \
   )");
   
-  // create an initial user (username: alice, password: letmein)
-  var salt = crypto.randomBytes(16);
-  db.run('INSERT OR IGNORE INTO users (username, hashed_password, salt) VALUES (?, ?, ?)', [
+  // create an initial user (email: alice, password: letmein)
+  /*var salt = crypto.randomBytes(16);
+  db.run('INSERT OR IGNORE INTO users (email, hashed_password, salt) VALUES (?, ?, ?)', [
     'alice',
     crypto.pbkdf2Sync('letmein', salt, 310000, 32, 'sha256'),
     salt
-  ]);
+  ]);*/
 });
 
 module.exports = db;

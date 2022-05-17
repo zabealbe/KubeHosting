@@ -1,0 +1,21 @@
+
+body{
+    font-family: 'Inter', sans-serif !important;
+}
+
+#hero-cards{
+
+}
+
+#hero-cards img{
+    padding-right: 15px;
+}
+
+#hero-cards p{
+    font-size: 14px;
+}
+
+#hero-content{
+    min-height: 70vh;
+}
+
