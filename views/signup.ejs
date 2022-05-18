@@ -28,12 +28,13 @@
 					<div class="card shadow-lg">
 						<div class="card-body p-5">
 							<h1 class="fs-4 card-title fw-bold mb-4">Sign up</h1>
+							<% if (message.length > 0) { %>
+								<section class="message"><p><%= message %></p></section>
+							<% } %>
 							<form action="/signup" method="post" novalidate="" autocomplete="off">
 								<div class="mb-3">
 									<label class="mb-2 text-muted" for="email">Email</label>
-									<input id="email" name="username" type="email" autocomplete="email" class="form-control" required>
-									<!--label class="mb-2 text-muted" for="username">Username</label>
-									<input id="username" name="username" type="text" autocomplete="username" class="form-control" required-->
+									<input id="email" name="email" type="email" autocomplete="email" class="form-control" required>
 									<div class="invalid-feedback">
 										Email is required	
 									</div>
