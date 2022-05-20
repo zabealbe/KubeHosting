@@ -27,7 +27,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes: 
-      - ./data:/data/db
+      - data:/data/db
     networks: 
       - kubehosting
 
@@ -43,9 +43,11 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
     volumes: 
-      - ./data:/data/db
+      - data:/data/db
     networks:
       - kubehosting
 networks:
   kubehosting:
     driver: bridge
+volumes:
+  data: {}
