@@ -6,4 +6,4 @@ const serviceSchema = mongoose.Schema({
     active: Boolean
 });
 
-module.exports = mongoose.model('Service, serviceSchema');
+module.exports = mongoose.model('Service', serviceSchema);

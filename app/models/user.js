@@ -8,7 +8,8 @@ var userSchema = mongoose.Schema({
     local            : {
         email        : String,
         password     : String,
-    }
+    },
+    services : [mongoose.Schema.Types.ObjectId]
 });
 
 // methods ======================
