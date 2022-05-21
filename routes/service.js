@@ -1,8 +1,7 @@
-const mongoose = require('mongoose');
-const DB_URI = require('../config/database').url;
+var User            = require('../app/models/user');
+var Service            = require('../app/models/service');
 
-const User = require('../app/models/user');
-const Service = require('../app/models/service');
+const { V1CustomResourceColumnDefinition } = require('@kubernetes/client-node');
 
 module.exports = function (app) {
 
@@ -15,13 +14,14 @@ module.exports = function (app) {
                 active: false,
             }
         );
-        new_service.save();
+        console.log(req.body)
 
         User.findById(req.params.userID, (err, user) => {
+            console.log(user)
             if (err) {
                 res.status(404).send('Unknown User ID');
             } else {
-                user.services.push(new_service._id);
+                user.services.push(new_service);
                 user.save();
 
                 res.sendStatus(200);
@@ -36,6 +36,7 @@ module.exports = function (app) {
                 res.status(404).send('Unknown User ID');
             } else {
                 let services = user.services.map((s) => Service.findById(s, (_err, service) => service));
+                console.log(services)
 
                 res.status(200).json(services);
             }
