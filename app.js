@@ -34,7 +34,7 @@ app.set('view engine', 'ejs'); // set up ejs for templating
 app.use(session({ secret: 'idkrandomseed' })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
-app.use(csrf());
+app.use(csrf({ cookie: true }));
 app.use(flash()); // use connect-flash for flash messages stored in session
 app.use(function(req, res, next) {
   res.locals.csrfToken = req.csrfToken();
