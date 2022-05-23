@@ -5,7 +5,7 @@ HOST: https://kubehosting.apiblueprint.org/
 
 KubeHosting API documentation
 
-## Registration [/signup]
+## Registration [/api/v1/signup]
 ### Register a new user [POST]
 
 + Request (application/json)
@@ -16,7 +16,7 @@ KubeHosting API documentation
         }
 + Response 200
 
-## Login [/login]
+## Login [/api/v1/login]
 ### Login [POST]
 
 + Request (application/json)
@@ -28,13 +28,13 @@ KubeHosting API documentation
 + Response 200
 + Response 400
 
-## Logout [/logout]
+## Logout [/api/v1/logout]
 ### Logout [POST]
 
 + Request ()
 + Respose 200
 
-## User's services [/user/{userID}/services/{serviceID}]
+## User's services [/api/v1/user/{userID}/services/{serviceID}]
 ### Get user's services [GET]
 + Parameters
     + userID (uuid) - ID of the user
@@ -83,7 +83,7 @@ KubeHosting API documentation
 + Request ()
 + Response 200
 
-## Start a service [/users/{userID}/services/{serviceID}/start]
+## Start a service [/api/v1/users/{userID}/services/{serviceID}/start]
 ### Start [POST]
 + Parameters
     + userID (uuid) - ID of the user
@@ -91,7 +91,7 @@ KubeHosting API documentation
 + Request ()
 + Response 200
 
-## Stop a service [/users/{userID}/services/{serviceID}/stop]
+## Stop a service [/api/v1/users/{userID}/services/{serviceID}/stop]
 ### Stop [POST]
 + Parameters
     + userID (uuid) - ID of the user
