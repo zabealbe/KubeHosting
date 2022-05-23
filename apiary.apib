@@ -5,26 +5,96 @@ HOST: https://kubehosting.apiblueprint.org/
 
 KubeHosting API documentation
 
-## User collection [/user]
-
-### Create a New User [POST]
-Add a new user to the list of registered users. It takes a JSON object
-containing the user's email address and its password.
+## Registration [/signup]
+### Register a new user [POST]
 
 + Request (application/json)
 
         {
-            "email": "me@example.com",
-            "password": "Ar4nd0mP4ssw0rD"
+            "email": "example@example.com",
+            "password": "supersecret"
         }
++ Response 200
 
-+ Response 200 (application/json)
+## Login [/login]
+### Login [POST]
 
-        {}
-
-+ Response 400 (application/json)
++ Request (application/json)
 
         {
-            "error_msg": "Password is too short",
-            "reason": "password: 123"
+            "email": "example@example.com",
+            "password": "supersecret"
         }
++ Response 200
++ Response 400
+
+## Logout [/logout]
+### Logout [POST]
+
++ Request ()
++ Respose 200
+
+## User's services [/user/{userID}/services/{serviceID}]
+### Get user's services [GET]
++ Parameters
+    + userID (uuid) - ID of the user
++ Request (application/json)
+        
+        {
+            "name": "my-blog",
+            "config": ".yaml file"
+        }
++ Response 200 (application/json)
+
+        {
+            [{
+                "name": "my-blog", 
+                "config: ".yaml file"
+            }]
+        }
+
+### Create a service [POST]
++ Parameters
+    + userID (uuid) - ID of the user
++ Request (application/json)
+        
+        {
+            "name": "my-blog",
+            "config": ".yaml file"
+        }
++ Response 200
+
+### Edit a service [PUT]
++ Parameters
+    + userID (uuid) - ID of the user
+    + serviceID (uuid) - ID of the service
++ Request (application/json)
+        
+        {
+            "name": "my-blog",
+            "config": ".yaml file"
+        }
++ Response 200
+
+### Delete a service [DELETE]
++ Parameters
+    + userID (uuid) - ID of the user
+    + serviceID (uuid) - ID of the service
++ Request ()
++ Response 200
+
+## Start a service [/users/{userID}/services/{serviceID}/start]
+### Start [POST]
++ Parameters
+    + userID (uuid) - ID of the user
+    + serviceID (uuid) - ID of the service
++ Request ()
++ Response 200
+
+## Stop a service [/users/{userID}/services/{serviceID}/stop]
+### Stop [POST]
++ Parameters
+    + userID (uuid) - ID of the user
+    + serviceID (uuid) - ID of the service
++ Request ()
++ Response 200
