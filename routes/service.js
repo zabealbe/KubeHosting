@@ -1,5 +1,5 @@
-var User            = require('../app/models/user');
-var Service            = require('../app/models/service');
+var User = require('../app/models/user');
+var Service = require('../app/models/service');
 
 const { V1CustomResourceColumnDefinition } = require('@kubernetes/client-node');
 
@@ -14,10 +14,8 @@ module.exports = function (app) {
                 active: false,
             }
         );
-        console.log(req.body)
 
         User.findById(req.params.userID, (err, user) => {
-            console.log(user)
             if (err) {
                 res.status(404).send('Unknown User ID');
             } else {
@@ -35,10 +33,7 @@ module.exports = function (app) {
             if (err) {
                 res.status(404).send('Unknown User ID');
             } else {
-                let services = user.services.map((s) => Service.findById(s, (_err, service) => service));
-                console.log(services)
-
-                res.status(200).json(services);
+                res.status(200).json(user.services);
             }
         });
     });
@@ -49,16 +44,15 @@ module.exports = function (app) {
             if (err) {
                 res.status(404).send('Unknown User ID');
             } else {
-                Service.findById(req.params.serviceID, (err, s) => {
-                    if (err) {
-                        res.status(404).send('Unknown Service ID');
-                    } else {
-                        s.config = req.body.config;
-                        s.save();
+                let s = user.services.find(({ _id }) => _id == req.params.serviceID);
+                if (s) {
+                    s.config = req.body.config;
+                    user.save();
 
-                        res.sendStatus(200);
-                    }
-                });
+                    res.sendStatus(200);
+                } else {
+                    res.status(404).send('Unknown Service ID');
+                }
             }
         });
     });
@@ -69,9 +63,8 @@ module.exports = function (app) {
             if (err) {
                 res.status(404).send('Unknown User ID');
             } else {
-                Service.deleteOne({ _id: req.params.serviceID });
-
-                user.services = user.services.filter(id => id != req.params.serviceID);
+                user.services = user.services.filter(({ _id }) => _id != req.params.serviceID);
+                user.save();
 
                 res.sendStatus(200);
             }
@@ -84,17 +77,16 @@ module.exports = function (app) {
             if (err) {
                 res.status(404).send('Unknown User ID');
             } else {
-                Service.findById(req.params.serviceID, (err, service) => {
-                    if (err) {
-                        res.status(404).send('Unknown Service ID');
-                    } else {
-                        service.active = true;
-                        service.save();
+                let service = user.services.find(({ _id }) => _id == req.params.serviceID);
+                if (service) {
+                    service.active = true;
+                    user.save();
 
-                        // TODO: Add Kubernetes Code for actually running something
-                        res.sendStatus(200);
-                    }
-                });
+                    // TODO: Add Kubernetes Code for actually running something
+                    res.sendStatus(200);
+                } else {
+                    res.status(404).send('Unknown Service ID');
+                }
             }
         });
     });
@@ -105,17 +97,16 @@ module.exports = function (app) {
             if (err) {
                 res.status(404).send('Unknown User ID');
             } else {
-                Service.findById(req.params.serviceID, (err, service) => {
-                    if (err) {
-                        res.status(404).send('Unknown Service ID');
-                    } else {
-                        service.active = false;
-                        service.save();
+                let service = user.services.find(({ _id }) => _id == req.params.serviceID);
+                if (service) {
+                    service.active = false;
+                    user.save();
 
-                        // TODO: Add Kubernetes Code for actually running something
-                        res.sendStatus(200);
-                    }
-                });
+                    // TODO: Add Kubernetes Code for actually running something
+                    res.sendStatus(200);
+                } else {
+                    res.status(404).send('Unknown Service ID');
+                }
             }
         });
     });
