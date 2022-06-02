@@ -1,3 +1,6 @@
+var express = require('express');
+var router = express.Router();
+
 var User = require('../models/user');
 
 const { V1CustomResourceColumnDefinition } = require('@kubernetes/client-node');
