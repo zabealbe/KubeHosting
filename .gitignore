@@ -1,6 +1,7 @@
 .env
 
 data/
+kube/
 
 # Node.js
 node_modules/
