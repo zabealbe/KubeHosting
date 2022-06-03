@@ -10,7 +10,7 @@ services:
     entrypoint:
       - ash
       - -c
-      - "npm install; npm start"
+      - "npm -D install; npm start"
     ports:
       - 3000:3000
     volumes: 
