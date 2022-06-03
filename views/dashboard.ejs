@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,17 +33,17 @@
     <div class="container min-vh-100" id="hero">
         <nav class="navbar navbar-light bg-none">
             <div class="container-fluid">
-                <a class="navbar-brand" href="./index.html">
-                    <img src="./media/logo.svg" alt="" height="40" class="d-inline-block align-text-top">
-                    <h6><span class="badge bg-primary">Dashboard</span></h6>
+                <a class="navbar-brand" href="/">
+                    <img src="/images/logo.svg" alt="" height="40" class="d-inline-block align-text-top">
                 </a>
-                <form class="d-flex form-inline">
-                    <input class="form-control form-control-sm mx-1" type="text" placeholder="username">
-                    <input class="form-control form-control-sm mx-1" type="text" placeholder="password">
-                    <button class="btn btn-sm btn-primary mx-1" type="submit">Login</button>
-                </form>
+                <a href="/logout" class="btn btn-sm btn-primary mx-1">Logout</a>
             </div>
         </nav>
+        <div class="container-fluid">
+            <h6>
+                <span class="badge bg-primary">Dashboard</span>
+            </h6>
+        </div>
         <table class="table table-hover">
             <thead>
                 <tr>
