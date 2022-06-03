@@ -2,23 +2,27 @@ var express = require('express');
 var router = express.Router();
 
 var User = require('../models/user');
-
-const { V1CustomResourceColumnDefinition } = require('@kubernetes/client-node');
+const servicesController = require('../controllers/services');
 
 // Creates a new service for a user
 router.post('/users/:userID/services/', function (req, res) {
     User.findById(req.params.userID, (err, user) => {
-        if (err) {
-            res.status(404).send('Unknown User ID');
+        if (user == null || err) {
+            res.status(404).send({'error' : 'Unknown User ID'});
         } else {
-            user.services.push({
-                name: req.body.name,
-                config: req.body.config,
-                active: false,
-            });
-            user.save();
-
-            res.sendStatus(200);
+            // check if user already has a service with the same name
+            let service = user.services.find((value) => { return value.name === req.body.name; });
+            if (service) {
+                res.status(400).send({'error': 'Service with the same name already exists'});
+            } else {
+                servicesController.createService(req.params.userID, req.body.name, req.body.replicas, req.body.template, (service) => {
+                    if (service) {
+                        res.status(200).send(service);
+                    } else {
+                        res.status(500).send({'error': 'Error creating service'});
+                    }
+                });
+            }
         }
     });
 });
@@ -26,8 +30,8 @@ router.post('/users/:userID/services/', function (req, res) {
 // Gets the services created by a user
 router.get('/users/:userID/services/', function (req, res, next) {
     User.findById(req.params.userID, (err, user) => {
-        if (err) {
-            res.status(404).send('Unknown User ID');
+        if (user == null || err) {
+            res.status(404).send({'error': 'Unknown User ID'});
         } else {
             res.status(200).json(user.services);
         }
@@ -37,7 +41,7 @@ router.get('/users/:userID/services/', function (req, res, next) {
 // Modifies the settings of a user's service
 router.put('/users/:userID/services/:serviceID', function (req, res, next) {
     User.findById(req.params.userID, (err, user) => {
-        if (err) {
+        if (user == null || err) {
             res.status(404).send('Unknown User ID');
         } else {
             let s = user.services.find(({ _id }) => _id == req.params.serviceID);
