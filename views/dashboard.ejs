@@ -18,60 +18,16 @@
             opacity: 1;
         }
 
-        #container {
-            position: absolute;
-            z-index: 100;
-            display: none;
-            width: 800px;
-            height: 625px;
-            top: 50%;
-            left: 50%;
-            margin-top: -312.5px;
-            margin-left: -400px;
-        }
-
         #hero {
             position: relative;
             z-index: 1;
         }
 
-        #editBody {
-            position: absolute;
+        #editor {
             overflow: scroll;
             height: 600px;
-            width: 800px;
-            top: 50%;
-            left: 50%;
-            margin-top: -300px;
-            margin-left: -400px;
         }
-
-        #editHead {
-            position: absolute;
-            height: 25px;
-            width: 800px;
-            top: 50%;
-            left: 50%;
-            margin-top: -325px;
-            margin-left: -400px;
-            background:darkcyan;
-            color:white;
-            overflow:hidden;
-        }
-
-        #headRight {
-            position: absolute;
-            float: right;
-            text-align: center;
-            width: 20px;
-            right: 0%;
-            border: 1px solid green;
-            cursor:pointer;
-        }
-
     </style>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 </head>
 <body>
     <div class="container min-vh-100" id="hero">
@@ -319,34 +275,90 @@
             </tbody>
         </table>
     </div>
-    <div id="container">
-        <div id="editHead">
-            <div id="headRight"><div id="btnX" onclick="closeEditor()">X</div></div>
-        </div> 
-        <div id="editBody"> EDIT HERE! </div>     
+    <div class="modal fade" id="editor-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Service configuration</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" onclick="closeEditor()"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="editor"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                  </div>
+            </div>
+        </div>
     </div>
-        
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.5.2/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script>
 
-        const target = document.getElementById("container");
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.5.3/ace.min.js" integrity="sha512-VAJR/b+EHPEZGc6vc/ONKHTrGCGUQ1YcVD2QXcFLkmIoV4qNoTmIiK35zNftxDn8o2oW7f10z2d1QRLkwk853g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.14.0/js-yaml.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.5.3/theme-github.min.js" integrity="sha512-7k6si+5hoSDYPfRd8EdNaWCq5s4xMp+XFVmHg5FYHoXvk80DYFrNStvFZ1U68DpVjInm1Q305D6OU7YEz1Gb4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.5.3/mode-yaml.min.js" integrity="sha512-VNIqw3ktoNtqfcLgPdYRLIKdzlf9/jCD+HC+fKo05vIK7lPH6xBzTY/+5dDNtElrnZusg5HlitcSAEetJrRkPA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        var editor = ace.edit("editor");
+
+        let code = `apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginx
+spec:
+  replicas: 3
+  selector:
+    app: nginx
+  template:
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80`
+
+        editor.setTheme("ace/theme/github");
+        editor.setSession(ace.createEditSession(code, 'ace/mode/yaml'))
+
+        var editor_modal = new bootstrap.Modal(document.getElementById('editor-modal'))
         const close = document.getElementById("btnX");
 
         function openEditor() {
-            target.style.display = "block";
-            var editor = ace.edit("editBody");
-            editor.setTheme("ace/theme/monokai");
-            editor.session.setMode("ace/mode/javascript");
+            editor_modal.show()
         }   
 
         function closeEditor() {
-            target.style.display = "none";
+            editor_modal.hide()
         }
-        /*close.addEventListener("click", function() {
-            target.style.display = "none";
-        });*/
         
+        editor.on('change', () => {
+            let getYamlCodeValidationErrors = (code) => {
+                var error = ''
+                try {
+                    jsyaml.safeLoad(code)
+                } catch (e) {
+                    error = e
+                }
+                return error
+            }
+            
+            let code = editor.getValue()
+            let error = getYamlCodeValidationErrors(code)
+            if (error) {
+                editor.getSession().setAnnotations([{
+                row: error.mark.line,
+                column: error.mark.column,
+                text: error.reason,
+                type: 'error'
+                }])
+            } else {
+                editor.getSession().setAnnotations([])
+            }
+        })
     </script>
 </body>
 </html>
