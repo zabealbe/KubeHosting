@@ -49,8 +49,8 @@ module.exports = function(app, passport) {
     app.get('/dashboard', isLoggedIn, function(req, res) {
         res.render('dashboard.ejs', {
             userID : req.user._id.toString(),
-            maxPODs : req.user.maxPODs, // TODO: add this field to User's Schema
-            services : req.user.services // TODO: rebase this on top of feat-kubernetes
+            maxPODs : req.user.maxPODs,
+            services : req.user.services
         });
     });
 

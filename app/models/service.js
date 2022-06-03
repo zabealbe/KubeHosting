@@ -15,6 +15,15 @@ const serviceSchema = mongoose.Schema({
         type: Boolean,
         required: true
     },
+    desiredPODs: {
+        type: Number,
+        required: true,
+    },
+    activePODs: {
+        type: Number,
+        required: true,
+        default: 0,
+    }
 });
 
 module.exports = mongoose.model('Service', serviceSchema);
