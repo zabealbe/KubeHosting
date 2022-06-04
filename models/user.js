@@ -1,6 +1,7 @@
 // load the things we need
-var mongoose = require('mongoose');
-var bcrypt   = require('bcrypt-nodejs');
+const mongoose = require('mongoose');
+const bcrypt   = require('bcrypt-nodejs');
+const kubernetesController = require('../controllers/kubernetes');
 
 // define schema for purchased plan
 var planPurchasedSchema = mongoose.Schema({
@@ -17,26 +18,28 @@ var planPurchasedSchema = mongoose.Schema({
 
 // define schema for service
 const serviceSchema = mongoose.Schema({
-    config: {           // the config for the service, must have the format of a k8s replication controller
-        type: Object,
-        required: true        
+    name: {
+        type: String,
+        required: true
     },
     active: {            // explain if the service is active (playing) or not (stopped)
         type: Boolean,
         required: true
     },
-    deploy_date: Date, // date time service activation
-    launch_date: Date, // date time service activation
-}, {
-    autoindex: false
-});
-serviceSchema.virtual('name').get(function() {
-    return this.config.metadata.name;
-});
-serviceSchema.virtual('replicas').get(function() {
-    return this.config.spec.replicas;
-}).set(function() {
-    this.config.spec.replicas = this.replicas;
+    replicas: {          // the number of replicas of the service
+        type: Number,
+        required: true
+    },
+    port: {             // the ports of the service
+        type: Number,
+        required: true
+    },
+    image: {             // the image of the service
+        type: String,
+        required: true
+    },
+    deploy_date: Date,   // date time service activation
+    launch_date: Date,   // date time service activation
 });
 
 // define the schema for our user model
@@ -85,6 +88,20 @@ userSchema.methods.generateHash = function(password) {
 userSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.local.password);
 };
+
+// add callback when user is created
+userSchema.pre('save', function(next) {
+    if (this.isNew) {
+        kubernetesController.createNamespace(this._id).then(() => {
+            next();
+        }).catch(err => {
+            next(err);
+        });
+    } else {
+        next();
+    }
+});
+
 
 // create the model for users and expose it to our app
 module.exports = mongoose.model('User', userSchema);
