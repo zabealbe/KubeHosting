@@ -19,6 +19,7 @@ services:
       /kubehosting
     networks:
       - kubehosting
+      - minikube
 
   mongo:
     image: mongo
@@ -49,5 +50,7 @@ services:
 networks:
   kubehosting:
     driver: bridge
+  minikube:
+    name: minikube
 volumes:
   data: {}
