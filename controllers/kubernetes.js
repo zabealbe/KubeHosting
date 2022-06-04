@@ -12,7 +12,7 @@ exports.createNamespace =  function(name) {
         },
     };
 
-    return k8sApi.createNamespace(namespace)
+    return k8sApi_core.createNamespace(namespace)
 }
 
 exports.createService = function(namespace, rc_config) {
