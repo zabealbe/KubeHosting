@@ -33,7 +33,10 @@ router.post('/signup', passport.authenticate('local-signup', {
     successRedirect : '/dashboard', // redirect to the secure dashboard section
     failureRedirect : '/signup', // redirect back to the signup page if there is an error
     failureFlash : true // allow flash messages
-}));
+}), function(req, res) {
+    console.log("hello");
+    console.log(req.body);
+});
 
 // =====================================
 // LOGOUT ==============================

@@ -44,6 +44,7 @@ app.use(function(req, res, next) {
 app.use('/', require('./routes/index'));
 app.use('/', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
+app.use('/api/v1', require('./routes/services'));
 
 // launch ======================================================================
 module.exports = app

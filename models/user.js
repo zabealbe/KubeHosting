@@ -1,6 +1,7 @@
 // load the things we need
-var mongoose = require('mongoose');
-var bcrypt   = require('bcrypt-nodejs');
+const mongoose = require('mongoose');
+const bcrypt   = require('bcrypt-nodejs');
+const kubernetesController = require('../controllers/kubernetes');
 
 // define schema for purchased plan
 var planPurchasedSchema = mongoose.Schema({
@@ -19,20 +20,26 @@ var planPurchasedSchema = mongoose.Schema({
 const serviceSchema = mongoose.Schema({
     name: {
         type: String,
-        unique: true,
         required: true
-    },
-    config: {            // the configuration file of the service that makes the service work
-        type: String,
-        required: true        
     },
     active: {            // explain if the service is active (playing) or not (stopped)
         type: Boolean,
         required: true
     },
-    replicas: Number,    // number of replicas
-    deploy_date: Date, // date time service activation
-    launch_date: Date, // date time service activation
+    replicas: {          // the number of replicas of the service
+        type: Number,
+        required: true
+    },
+    port: {             // the ports of the service
+        type: Number,
+        required: true
+    },
+    image: {             // the image of the service
+        type: String,
+        required: true
+    },
+    deploy_date: Date,   // date time service activation
+    launch_date: Date,   // date time service activation
 });
 
 // define the schema for our user model
@@ -64,16 +71,37 @@ var userSchema = mongoose.Schema({
     vat: String,                    // not required at registration ("Partita IVA")
 });
 
-    // methods ======================
-    // generating a hash
-    userSchema.methods.generateHash = function(password) {
-        return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
-    };
+userSchema.virtual('free_slots').get(function() {
+    return this.plan.plan.slots - this.services.reduce((acc, service) => {
+        return acc + service.active ? service.config.spec.replicas : 0;
+    }, 0);
+});
 
-    // checking if password is valid
-    userSchema.methods.validPassword = function(password) {
-        return bcrypt.compareSync(password, this.local.password);
-    };
 
-    // create the model for users and expose it to our app
-    module.exports = mongoose.model('User', userSchema);
+// methods ======================
+// generating a hash
+userSchema.methods.generateHash = function(password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+};
+
+// checking if password is valid
+userSchema.methods.validPassword = function(password) {
+    return bcrypt.compareSync(password, this.local.password);
+};
+
+// add callback when user is created
+userSchema.pre('save', function(next) {
+    if (this.isNew) {
+        kubernetesController.createNamespace(this._id).then(() => {
+            next();
+        }).catch(err => {
+            next(err);
+        });
+    } else {
+        next();
+    }
+});
+
+
+// create the model for users and expose it to our app
+module.exports = mongoose.model('User', userSchema);
