@@ -43,8 +43,6 @@ function toKubernetesConfig(config) {
 }
 
 exports.createService =  function(req, res) {
-    console.log(req.body)
-
     let rc_config = toKubernetesConfig(req.body);
     let owner_id = req.params.userID;
 

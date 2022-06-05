@@ -11,7 +11,7 @@ function createServiceConfig(rc_config) {
     for (let i = 0; i < rc_config.spec.template.spec.containers[0].ports.length; i++) {
         ports.push(rc_config.spec.template.spec.containers[0].ports[i].containerPort);
     }
-    
+
     let sv_config = {
         apiVersion: 'v1',
         kind: 'Service',
@@ -39,7 +39,7 @@ function createIngressConfig(sv_config) {
     for (let i = 0; i < sv_config.spec.ports.length; i++) {
         ports.push(sv_config.spec.ports[i].targetPort);
     }
-
+  
     let ig_config = {
         apiVersion: 'networking.k8s.io/v1',
         kind: 'Ingress',
