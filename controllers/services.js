@@ -43,6 +43,8 @@ function toKubernetesConfig(config) {
 }
 
 exports.createService =  function(req, res) {
+    console.log(req.body);
+
     let rc_config = toKubernetesConfig(req.body);
     let owner_id = req.params.userID;
 
@@ -61,6 +63,7 @@ exports.createService =  function(req, res) {
                     user.services.push({
                         name: req.body.name,
                         active: false,
+                        ingress: rc_config.metadata.name + '.kubehosting.duckdns.org',
                         replicas: req.body.replicas,
                         port: req.body.port,
                         image: req.body.image,

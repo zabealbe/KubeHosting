@@ -1,23 +1,26 @@
-const userID = document.head.querySelector("meta[name='userID']").content;
-const maxPODs = document.head.querySelector("meta[name='maxPODs']").content;
+const csrfToken = document.head.querySelector('meta[name="csrf-token"]').content;
+const userID = document.head.querySelector("meta[name='user_id']").content;
+const maxPODs = document.head.querySelector("meta[name='user_slots']").content;
+
 
 function create_service_row(service, row_n) {
     const new_row = document.getElementById('service-row').content.cloneNode(true).childNodes[1];
+
     new_row.children[0].textContent = row_n;
-    new_row.children[1].textContent = `${service.name}`;
-    new_row.children[2].children[0].textContent = `${service.activePODs}`;
-    new_row.children[2].children[1].children[0].setAttribute('placeholder', `${service.desiredPODs}`);
+    new_row.children[1].textContent = service.name;
+    new_row.children[2].children[0].textContent = service.ingress;
+    new_row.children[2].children[0].href = 'http://' + service.ingress;
+
+    new_row.children[3].children[0].textContent = `${service.replicas} / ${service.replicas}`;
+    new_row.children[5].children[0].children[0].children[0].setAttribute('onclick', `toggle_service(this, '${service.name}')`);
+    new_row.children[6].setAttribute('onclick', `delete_service('${service.name}')`);
+
+
     if (service.active) {
-        const online_status = document.getElementById('online-status').content.cloneNode(true).childNodes[1];
-        const pause_toggler = document.getElementById('pause-toggler').content.cloneNode(true).childNodes[1];
-        pause_toggler.childNodes[1].setAttribute('onclick', `stop_service('${service._id}')`);
-        new_row.children[4].replaceWith(online_status);
-        new_row.children[5].replaceWith(pause_toggler);
-    } else {
-        new_row.children[5].children[0].setAttribute('onclick', `start_service('${service._id}')`);
+        // set class to active
+        new_row.className = '';
+        new_row.children[5].children[0].children[0].children[0].checked = true;
     }
-    new_row.children[6].textContent = `${service.activePODs / maxPODs * 100}%`
-    new_row.children[7].setAttribute('onclick', `delete_service('${service._id}')`);
 
     return new_row;
 }
@@ -25,7 +28,7 @@ function create_service_row(service, row_n) {
 async function update_service_table() {
     const table = document.getElementById('service-table');
 
-    const services = await fetch(`/users/${userID}/services`, { method: 'GET', credentials: 'include' })
+    const services = await fetch(`/api/v1/users/${userID}/services`, { headers: {'CSRF-Token': csrfToken}, method: 'GET', credentials: 'include' })
         .then(res => {
             if (res.status == 304) {
                 return [];
@@ -34,31 +37,62 @@ async function update_service_table() {
             }
         });
 
-    if (services.length > 0) {
-        const last_row = table.rows[table.rows.length - 1].cloneNode(true);
-        const new_rows = services.map((s, i) => create_service_row(s, i));
+    const last_row = table.rows[table.rows.length - 1].cloneNode(true);
+    const new_rows = services.map((s, i) => create_service_row(s, i));
 
-        last_row.children[0].textContent = new_rows.length;
-        new_rows.push(last_row);
-        
-        table.children[1].replaceChildren(...Array.from(new_rows));
+    last_row.children[0].textContent = new_rows.length;
+    new_rows.push(last_row);
+    
+    table.children[1].replaceChildren(...Array.from(new_rows));
+}
+
+function create_service() {
+    const name = document.getElementById('service-name').value;
+    const replicas = 5;
+    const port = 80;//document.getElementById('service-port').value;
+    const image = "nginx";//document.getElementById('service-image').value;
+
+    document.getElementById('service-name').value = "";
+
+    fetch(`/api/v1/users/${userID}/services`, {
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'CSRF-Token': csrfToken
+        },
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({name, replicas, port, image})
+    })
+        .then(_ => update_service_table())
+        .catch(e => console.log(e));
+}
+
+function toggle_service(target, id) {
+    console.log(target.checked);
+    if (target.checked) {
+        start_service(id);
+    }
+    else {
+        stop_service(id);
     }
 }
 
 function start_service(id) {
-    fetch(`/users/${userID}/services/${id}/start`, { method: 'POST', credentials: 'include' })
+    fetch(`/api/v1/users/${userID}/services/${id}/start`, { headers: {'CSRF-Token': csrfToken}, method: 'POST', credentials: 'include' })
         .then(_ => update_service_table())
         .catch(e => console.log(e));
 }
 
 function stop_service(id) {
-    fetch(`/users/${userID}/services/${id}/stop`, { method: 'POST', credentials: 'include' })
+    fetch(`/api/v1/users/${userID}/services/${id}/stop`, { headers: {'CSRF-Token': csrfToken}, method: 'POST', credentials: 'include' })
         .then(_ => update_service_table())
         .catch(e => console.log(e));
 }
 
 function delete_service(id) {
-    fetch(`/users/${userID}/services/${id}`, { method: 'DELETE', credentials: 'include' })
+    fetch(`/api/v1/users/${userID}/services/${id}`, { headers: {'CSRF-Token': csrfToken}, method: 'DELETE', credentials: 'include' })
         .then(_ => update_service_table())
         .catch(e => console.log(e));
 }
+
+update_service_table();

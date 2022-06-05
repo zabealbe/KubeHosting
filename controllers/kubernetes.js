@@ -22,7 +22,6 @@ exports.createService = function(namespace, rc_config) {
         ports.push(rc_config.spec.template.spec.containers[0].ports[i].containerPort);
     }
 
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     // create the service
     let sv_config = {
         apiVersion: 'v1',

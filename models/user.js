@@ -26,6 +26,10 @@ const serviceSchema = mongoose.Schema({
         type: Boolean,
         required: true
     },
+    ingress: {
+        type: String,
+        required: false
+    },
     replicas: {          // the number of replicas of the service
         type: Number,
         required: true

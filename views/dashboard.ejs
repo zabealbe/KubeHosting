@@ -5,8 +5,11 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="userID" content="<%= userID %>">
-  <meta name="maxPODs" content="<%= maxPODs %>">
+
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <meta name="user_id" content="<%= user._id %>">
+  <meta name="user_slots" content="10">
+
   <title>Dashboard</title>
 
   <link rel="stylesheet" href="/css/main.css">
@@ -16,7 +19,7 @@
     rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-  <script type="application/javascript" src="/js/live-reloading.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300&family=Inter:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet"> 
   <style>
     .pod+button {
       opacity: 0;
@@ -25,107 +28,54 @@
     .pod:focus+button {
       opacity: 1;
     }
-  </style>
+
+    #service-table .pods {
+      font-family: 'DM Mono', monospace;
+    }
+
+    #service-table .form-check-input:checked {
+      background-color: var(--bs-success);
+      border-color: var(--bs-success);
+    }
+    #service-table .form-check-input {
+      transform: scale(1.1);
+    }
+    </style>
 </head>
 
 <body>
-  <script type="application/javascript">
-    setInterval(() => update_service_table(), 10000);
-  </script>
-  <template id="online-status">
-    <td>
-      <div class="text-success d-flex align-items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-circle-fill"
-          viewBox="0 0 16 16">
-          <circle cx="8" cy="8" r="8" />
-        </svg>
-        <span class="ms-2">Online</span>
-      </div>
-    </td>
-  </template>
-  <template id="offline-status">
-    <td>
-      <div class="text-danger d-flex align-items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-circle-fill"
-          viewBox="0 0 16 16">
-          <circle cx="8" cy="8" r="8" />
-        </svg>
-        <span class="ms-2">Offline</span>
-      </div>
-    </td>
-  </template>
-  <template id="pause-toggler">
-    <td style="cursor: pointer;">
-      <div class="text-dark d-flex align-items-center" onclick="">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-          class="bi bi-pause-circle-fill" viewBox="0 0 16 16">
-          <path
-            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.25 5C5.56 5 5 5.56 5 6.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C7.5 5.56 6.94 5 6.25 5zm3.5 0c-.69 0-1.25.56-1.25 1.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C11 5.56 10.44 5 9.75 5z" />
-        </svg>
-        <span class="ms-2">Pause</span>
-      </div>
-    </td>
-  </template>
-  <template id="play-toggler">
-    <td style="cursor: pointer;">
-      <div class="text-dark d-flex align-items-center" onclick="">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-          class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-          <path
-            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z" />
-        </svg>
-        <span class="ms-2">Play</span>
-      </div>
-    </td>
-  </template>
   <template id="service-row">
-    <tr>
+    <tr class="service-offline">
       <th scope="row">
         0
       </th>
-      <td>
+      <td class="name">
         service name
       </td>
-      <td class="d-flex align-items-center">
-        <span class="me-2">x</span>
-        <div class="input-group input-group-sm">
-          <input type="text" class="form-control pod" placeholder="y" aria-label="POD" aria-describedby="button-addon2"
-            style="width: 18px;">
-          <button class="btn btn-outline-secondary" type="button" id="button-addon2">Save</button>
+      <td class="url">
+        <a href=""></a>
+      </td>
+      <td class="pods">
+        <div class="d-block align-items-center">
+          <span class="me-2">0 / 0</span>
         </div>
       </td>
       <td>
         <button class="btn btn-sm btn-outline-primary mx-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark"
-            viewBox="0 0 16 16">
-            <path
-              d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z">
-            </path>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+            <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
           </svg>
-          Change
+          Edit
         </button>
       </td>
       <td>
-        <div class="text-danger d-flex align-items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-circle-fill"
-            viewBox="0 0 16 16">
-            <circle cx="8" cy="8" r="8"></circle>
-          </svg>
-          <span class="ms-2">Offline</span>
+        <div class="d-flex align-items-center">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" onclick="">
+          </div>
         </div>
       </td>
-      <td style="cursor: pointer;">
-        <div class="text-dark d-flex align-items-center" onclick="">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-            class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-            <path
-              d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z">
-            </path>
-          </svg>
-          <span class="ms-2">Play</span>
-        </div>
-      </td>
-      <td>Usage%</td>
       <td style="cursor: pointer;" onclick="">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square"
           viewBox="0 0 16 16">
@@ -158,150 +108,56 @@
         <tr>
           <th scope="col">#</th>
           <th scope="col">Service name</th>
+          <th scope="col">Ingress</th>
           <th scope="col">POD</th>
-          <th scope="col">File configuration</th>
-          <th scope="col">Status</th>
-          <th scope="col">Status toggler</th>
-          <th scope="col">Usage</th>
-          <th scope="col">Delete</th>
+          <th scope="col">Configuration</th>
+          <th scope="col">Active</th>
         </tr>
       </thead>
       <tbody>
-        <% services.forEach((s, i)=> {%>
-          <tr>
-            <th scope="row">
-              <%= i %>
-            </th>
-            <td>
-              <%= s.name %>
+        <tr>
+          <th scope="row" class="text-muted">
+            <%= user.services.length %>
+          </th>
+          <td class="text-muted">
+            <div class="input-group input-group-sm">
+              <input id="service-name" type="text" class="form-control" placeholder="Service Name" aria-describedby="button-addon2" />
+            </div>
+          </td>
+          <td class="text-muted">
+            -
+          </td>
+          <td class="pods">
+            <div class="d-block align-items-center">
+              <span class="me-2">- / -</span>
             </td>
-            <td class="d-flex align-items-center">
-              <span class="me-2">
-                <%= s.activePODs %>/
-              </span>
-              <div class="input-group input-group-sm">
-                <input type="text" class="form-control pod" placeholder="<%= s.desiredPODs %>" aria-label="POD"
-                  aria-describedby="button-addon2" style="width: 18px;" />
-                <button class="btn btn-outline-secondary" type="button" id="button-addon2">Save</button>
-              </div>
-            </td>
-            <td>
-              <button class="btn btn-sm btn-outline-primary mx-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                  class="bi bi-file-earmark" viewBox="0 0 16 16">
-                  <path
-                    d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
-                </svg>
-                Change
-              </button>
-            </td>
-            <td>
-              <% if(s.active) {%>
-                <div class="text-success d-flex align-items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-                    class="bi bi-circle-fill" viewBox="0 0 16 16">
-                    <circle cx="8" cy="8" r="8" />
-                  </svg>
-                  <span class="ms-2">Online</span>
-                </div>
-                <% } else { %>
-                  <div class="text-danger d-flex align-items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-                      class="bi bi-circle-fill" viewBox="0 0 16 16">
-                      <circle cx="8" cy="8" r="8" />
-                    </svg>
-                    <span class="ms-2">Offline</span>
-                  </div>
-                  <% } %>
-            </td>
-            <td style="cursor: pointer;">
-              <% if(s.active) {%>
-                <div class="text-dark d-flex align-items-center" onclick="stop_service('<%= s._id %>')">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-pause-circle-fill" viewBox="0 0 16 16">
-                    <path
-                      d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.25 5C5.56 5 5 5.56 5 6.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C7.5 5.56 6.94 5 6.25 5zm3.5 0c-.69 0-1.25.56-1.25 1.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C11 5.56 10.44 5 9.75 5z" />
-                  </svg>
-                  <span class="ms-2">Pause</span>
-                </div>
-                <% } else { %>
-                  <div class="text-dark d-flex align-items-center" onclick="start_service('<%= s._id %>')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                      class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-                      <path
-                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z" />
-                    </svg>
-                    <span class="ms-2">Play</span>
-                  </div>
-                  <% } %>
-            </td>
-            <td>
-              <span class="fs-6">76% of total</span>
-            </td>
-            <td style="cursor: pointer;" onclick="delete_service('<%= s._id %>')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square"
-                viewBox="0 0 16 16">
-                <path
-                  d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
-                <path
-                  d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+          <td>
+            <button class="btn btn-sm btn-outline-secondary disabled mx-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
               </svg>
-            </td>
-          </tr>
-          <% }); %>
-            <tr>
-              <th scope="row" class="text-muted">
-                <%= services.length %>
-              </th>
-              <td class="text-muted">
-                <div class="input-group input-group-sm">
-                  <input type="text" class="form-control" placeholder="Service Name" aria-label="POD"
-                    aria-describedby="button-addon2" />
-                </div>
-              </td>
-              <td class="d-flex align-items-center">
-                <span class="me-2">0/</span>
-                <div class="input-group input-group-sm">
-                  <input type="text" class="form-control pod" placeholder="0" aria-label="POD"
-                    aria-describedby="button-addon2" style="width: 18px;" />
-                  <button class="btn btn-outline-secondary" type="button" id="button-addon2">Save</button>
-                </div>
-
-              </td>
-              <td>
-                <button class="btn btn-sm btn-outline-secondary mx-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-file-earmark" viewBox="0 0 16 16">
-                    <path
-                      d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
-                  </svg>
-                  Change
-                </button>
-              </td>
-              <td class="text-muted">
-                -
-              </td>
-              <td class="text-muted">
-                -
-              </td>
-              <td class="text-muted">
-                -
-              </td>
-              <td style="cursor: pointer;" class="text-dark">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                  class="bi bi-plus-square-fill" viewBox="0 0 16 16">
-                  <path
-                    d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z" />
-                </svg>
-              </td>
-            </tr>
+              Edit
+            </button>
+          </td>
+          <td class="text-muted">
+            -
+          </td>
+          <td style="cursor: pointer;" class="text-dark" onclick="create_service();">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+              <path
+                d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z" />
+            </svg>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
-
-
-
-  <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>-->
+  <script type="application/javascript" src="/js/live-reloading.js"></script>
+  <script type="application/javascript">
+    //setInterval(() => update_service_table(), 10000);
+  </script>
 </body>
 
 </html>
