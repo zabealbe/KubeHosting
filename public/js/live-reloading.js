@@ -2,6 +2,9 @@ const csrfToken = document.head.querySelector('meta[name="csrf-token"]').content
 const userID = document.head.querySelector("meta[name='user_id']").content;
 const maxPODs = document.head.querySelector("meta[name='user_slots']").content;
 
+const serviceSettings = document.getElementById('serviceSettings')
+const serviceSettingsModal = new bootstrap.Modal(serviceSettings)
+
 
 function create_service_row(service, row_n) {
     const new_row = document.getElementById('service-row').content.cloneNode(true).childNodes[1];
@@ -96,3 +99,15 @@ function delete_service(id) {
 }
 
 update_service_table();
+
+function openServiceSettings(id) {
+    const form = serviceSettings.getElementsByTagName("form")[0];
+    form.reset();
+
+    
+
+    serviceSettingsModal.show();
+}
+
+function saveServiceSettings() {
+}
