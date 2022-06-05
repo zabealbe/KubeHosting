@@ -10,7 +10,7 @@ var services = [];
 function create_service_row(service, row_n) {
     const new_row = document.getElementById('service-row').content.cloneNode(true).childNodes[1];
 
-    new_row.children[0].textContent = row_n;
+    new_row.children[0].children[0].textContent = row_n;
     new_row.children[1].children[0].textContent = service.name;
     new_row.children[2].children[0].children[0].textContent = service.ingress;
     new_row.children[2].children[0].children[0].href = 'http://' + service.ingress;
