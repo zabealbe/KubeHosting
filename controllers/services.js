@@ -61,6 +61,7 @@ exports.createService =  function(req, res) {
                     user.services.push({
                         name: req.body.name,
                         active: false,
+                        ingress: rc_config.metadata.name + '.kubehosting.duckdns.org',
                         replicas: req.body.replicas,
                         port: req.body.port,
                         image: req.body.image,
@@ -71,6 +72,32 @@ exports.createService =  function(req, res) {
                 }).catch((err) => {
                     console.log(err);
                     res.status(500).send({'error': 'Error creating service'});
+                });
+            }
+        }
+    });
+}
+
+exports.updateService =  function(req, res) {
+    let rc_config = toKubernetesConfig(req.body);
+    let owner_id = req.params.userID;
+
+    User.findById(owner_id, (err, user) => {
+        if (!user || err) {
+            res.status(404).send({'error': 'User not found'});
+        } else {
+            let service = user.services.find(service => service.name === req.body.name);
+            if (!service) {
+                res.status(400).send({'error': 'Service not found'});
+            } else {
+                kubernetes.updateService(owner_id, rc_config).then((_) => {
+                    service = Object.assign(service, req.body);
+                    user.save();
+
+                    res.status(200).send(service);
+                }).catch((err) => {
+                    console.log(err);
+                    res.status(500).send({'error': 'Error updating service'});
                 });
             }
         }
