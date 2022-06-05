@@ -159,16 +159,17 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Service configuration</h5>
-                <button type="button" class="btn-close" data-dismiss="modal" onclick="saveServiceSettings()"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-              <form>
+            <form action="javascript:void(0);" onsubmit="saveServiceSettings(this);">
+              <div class="modal-body">
                 <div class="row g-3 align-items-center mb-3">
+                  <input type="hidden" name="name" value="">
                   <div class="col-auto col-2">
-                    <label for="inputPassword6" class="col-form-label">Replicas</label>
+                    <label class="col-form-label">Replicas</label>
                   </div>
                   <div class="col-auto">
-                    <input type="number" id="inputPassword6" class="form-control" value="1">
+                    <input type="number" step="1" name="replicas" class="form-control" value="1" pattern="[0-9]+" required>
                   </div>
                   <div class="col-auto">
                     <span id="passwordHelpInline" class="form-text">
@@ -179,10 +180,10 @@
                 
                 <div class="row g-3 align-items-center mb-3">
                   <div class="col-auto col-2">
-                    <label for="inputPassword6" class="col-form-label">Port</label>
+                    <label class="col-form-label">Port</label>
                   </div>
                   <div class="col-auto">
-                    <input type="text" id="inputPassword6" class="form-control" placeholder="80">
+                    <input type="number" step="1" max="65535" name="port" class="form-control" placeholder="80" required>
                   </div>
                   <div class="col-auto">
                     <span id="passwordHelpInline" class="form-text">
@@ -193,10 +194,10 @@
 
                 <div class="row g-3 align-items-center">
                   <div class="col-auto col-2">
-                    <label for="inputPassword6" class="col-form-label">Image</label>
+                    <label class="col-form-label">Image</label>
                   </div>
                   <div class="col-auto">
-                    <input type="text" id="inputPassword6" class="form-control" placeholder="nginx">
+                    <input type="text" name="image" class="form-control" placeholder="nginx" title="must be an existing container image" required>
                   </div>
                   <div class="col-auto">
                     <span id="passwordHelpInline" class="form-text">
@@ -204,12 +205,13 @@
                     </span>
                   </div>
                 </div>
-              </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
               </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" type="submit">Save changes</button>
+              </div>
+            </form>
+
         </div>
     </div>
   </div>

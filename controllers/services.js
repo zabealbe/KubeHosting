@@ -43,7 +43,7 @@ function toKubernetesConfig(config) {
 }
 
 exports.createService =  function(req, res) {
-    console.log(req.body);
+    console.log(req.body)
 
     let rc_config = toKubernetesConfig(req.body);
     let owner_id = req.params.userID;
@@ -74,6 +74,32 @@ exports.createService =  function(req, res) {
                 }).catch((err) => {
                     console.log(err);
                     res.status(500).send({'error': 'Error creating service'});
+                });
+            }
+        }
+    });
+}
+
+exports.updateService =  function(req, res) {
+    let rc_config = toKubernetesConfig(req.body);
+    let owner_id = req.params.userID;
+
+    User.findById(owner_id, (err, user) => {
+        if (!user || err) {
+            res.status(404).send({'error': 'User not found'});
+        } else {
+            let service = user.services.find(service => service.name === req.body.name);
+            if (!service) {
+                res.status(400).send({'error': 'Service not found'});
+            } else {
+                kubernetes.updateService(owner_id, rc_config).then((_) => {
+                    service = Object.assign(service, req.body);
+                    user.save();
+
+                    res.status(200).send(service);
+                }).catch((err) => {
+                    console.log(err);
+                    res.status(500).send({'error': 'Error updating service'});
                 });
             }
         }
