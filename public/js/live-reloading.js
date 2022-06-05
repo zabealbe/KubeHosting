@@ -114,6 +114,8 @@ function openServiceSettings(service) {
     const form = serviceSettings.getElementsByTagName("form")[0];
     form.reset();
 
+    console.log(form)
+
     if (service) {
         form.elements.name.value = service.name;
         form.elements.replicas.value = service.replicas;
@@ -139,6 +141,8 @@ function saveServiceSettings(form) {
         image: form.elements.image.value
     }
 
+    console.log(service);
+
     if (service.name == "") {
         service.name = document.getElementById('service-name').value;
         document.getElementById('service-name').value = "";
@@ -148,7 +152,6 @@ function saveServiceSettings(form) {
         update_service(service);
     }
 
-    console.log(service);
 
     serviceSettingsModal.hide();
 }
