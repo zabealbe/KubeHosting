@@ -2,17 +2,18 @@ const csrfToken = document.head.querySelector('meta[name="csrf-token"]').content
 const userID = document.head.querySelector("meta[name='user_id']").content;
 const maxPODs = document.head.querySelector("meta[name='user_slots']").content;
 
-const serviceSettings = document.getElementById('serviceSettings')
-const serviceSettingsModal = new bootstrap.Modal(serviceSettings)
+const serviceSettings = document.getElementById('serviceSettings');
+const serviceSettingsModal = new bootstrap.Modal(serviceSettings);
 
+var services = [];
 
 function create_service_row(service, row_n) {
     const new_row = document.getElementById('service-row').content.cloneNode(true).childNodes[1];
 
     new_row.children[0].textContent = row_n;
-    new_row.children[1].textContent = service.name;
-    new_row.children[2].children[0].textContent = service.ingress;
-    new_row.children[2].children[0].href = 'http://' + service.ingress;
+    new_row.children[1].children[0].textContent = service.name;
+    new_row.children[2].children[0].children[0].textContent = service.ingress;
+    new_row.children[2].children[0].children[0].href = 'http://' + service.ingress;
 
     new_row.children[3].children[0].textContent = `${service.replicas} / ${service.replicas}`;
 
@@ -34,7 +35,7 @@ function create_service_row(service, row_n) {
 async function update_service_table() {
     const table = document.getElementById('service-table');
 
-    const services = await fetch(`/api/v1/users/${userID}/services`, { headers: {'CSRF-Token': csrfToken}, method: 'GET', credentials: 'include' })
+    services = await fetch(`/api/v1/users/${userID}/services`, { headers: {'CSRF-Token': csrfToken}, method: 'GET', credentials: 'include' })
         .then(res => {
             if (res.status == 304) {
                 return [];
@@ -63,7 +64,11 @@ function create_service(service) {
         body: JSON.stringify(service)
     })
         .then(_ => update_service_table())
-        .catch(e => console.log(e));
+        .catch(e => console.log(e))
+        .finally(() => {
+            serviceNameInput.value = "";
+            serviceSettingsModal.hide()
+        });
 }
 
 function update_service(service) {
@@ -77,11 +82,13 @@ function update_service(service) {
         body: JSON.stringify(service)
     })
         .then(_ => update_service_table())
-        .catch(e => console.log(e));
+        .catch(e => console.log(e))
+        .finally(() => {
+            serviceSettingsModal.hide()
+        });
 }
 
 function toggle_service(target, id) {
-    console.log(target.checked);
     if (target.checked) {
         start_service(id);
     }
@@ -114,13 +121,20 @@ function openServiceSettings(service) {
     const form = serviceSettings.getElementsByTagName("form")[0];
     form.reset();
 
-    console.log(form)
-
     if (service) {
         form.elements.name.value = service.name;
         form.elements.replicas.value = service.replicas;
         form.elements.port.value = service.port;
         form.elements.image.value = service.image;
+    } else {
+        const serviceNameInput = document.getElementById('serviceNameInput');
+
+        if (!serviceNameInput.checkValidity()) {
+            serviceNameInput.reportValidity();
+            return;
+        }
+            
+        form.elements.name.value = serviceNameInput.value;
     }
 
 
@@ -141,17 +155,10 @@ function saveServiceSettings(form) {
         image: form.elements.image.value
     }
 
-    console.log(service);
-
-    if (service.name == "") {
-        service.name = document.getElementById('service-name').value;
-        document.getElementById('service-name').value = "";
-
-        create_service(service);
-    } else {
+    // check if service already exists
+    if (services.find(s => s.name == service.name)) {
         update_service(service);
+    } else {
+        create_service(service);
     }
-
-
-    serviceSettingsModal.hide();
 }
