@@ -4,46 +4,7 @@ const YAML = require('yaml')
 
 const kubernetes = require('./kubernetes');
 
-function toKubernetesConfig(config) {
-    let rc_config = {
-        apiVersion: 'v1',
-        kind: 'ReplicationController',
-        metadata: {
-            name: config.name,
-        },
-        spec: {
-            replicas: config.replicas,
-            selector: {
-                app: config.name,
-            },
-            template: {
-                metadata: {
-                    labels: {
-                        app: config.name,
-                    },
-                },
-                spec: {
-                    containers: [
-                        {
-                            name: config.name,
-                            image: config.image,
-                            ports: [
-                                {
-                                    containerPort: config.port,
-                                },
-                            ],
-                        },
-                    ],
-                },
-            },
-        },
-    };
-
-    return rc_config;
-}
-
 exports.createService =  function(req, res) {
-    let rc_config = toKubernetesConfig(req.body);
     let owner_id = req.params.userID;
 
     User.findById(owner_id, (err, user) => {
@@ -54,18 +15,19 @@ exports.createService =  function(req, res) {
             if (service) {
                 res.status(400).send({'error': 'Service with the same name already exists'});
             } else {
-                // set replicas to 0
-                rc_config.spec.replicas = 0;
+                let service = {
+                    name: req.body.name,
+                    active: false,
+                    ingress: req.body.name + '.kubehosting.duckdns.org',
+                    replicas: req.body.replicas,
+                    port: req.body.port,
+                    image: req.body.image,
+                }
 
-                kubernetes.createService(owner_id, rc_config).then((_) => {
-                    user.services.push({
-                        name: req.body.name,
-                        active: false,
-                        ingress: rc_config.metadata.name + '.kubehosting.duckdns.org',
-                        replicas: req.body.replicas,
-                        port: req.body.port,
-                        image: req.body.image,
-                    });
+                req.body.replicas = 0; // disable service while creating it
+
+                kubernetes.createService(owner_id, req.body).then((_) => {
+                    user.services.push(service);
                     user.save();
 
                     res.status(200).send(user.services[user.services.length - 1]);
@@ -113,10 +75,9 @@ exports.startService = function(req, res, next) {
             res.status(404).send({'error': 'User not found'});
         } else {
             let service = user.services.find(service => service.name == service_id);
-            let rc_config = toKubernetesConfig(service);
             
             if (service) {
-                kubernetes.updateService(owner_id, rc_config).then((_) => {                           
+                kubernetes.updateService(owner_id, service).then((_) => {                           
                     service.active = true;
                     user.save();
                 
