@@ -136,7 +136,8 @@ exports.createService = function(namespace, service) {
 
     // Undo the creation if any of the promises fail
     return all_proimse.catch(function(err) {
-        console.log('Error creating service: ' + err);
+        console.log(err);
+        console.log("Rolling back resources creation");
         exports.deleteService(namespace, rc_config.metadata.name);
     });
 }
@@ -156,9 +157,31 @@ exports.updateService = function(namespace, service) {
 }
 
 exports.deleteService = function(namespace, service_id) {
-    let rc_promise = k8sApi_core.deleteNamespacedReplicationController(service_id, namespace, undefined, undefined, undefined, undefined,'Foreground');
-    let sv_promise = k8sApi_core.deleteNamespacedService(service_id, namespace);
-    let ig_promise = k8sApi_network.deleteNamespacedIngress(service_id, namespace);
+    let rc_promise = k8sApi_core.deleteNamespacedReplicationController(service_id, namespace, undefined, undefined, undefined, undefined,'Foreground').catch(function(err) {
+        if (err.response.statusCode == 404) {
+            console.log('ReplicationController ' + service_id + ' in namespace ' + namespace + ' not present');
+        } else {
+            throw err;
+        }
+    });
 
-    return Promise.all([rc_promise, sv_promise, ig_promise])
+    let sv_promise = k8sApi_core.deleteNamespacedService(service_id, namespace).catch(function(err) {
+        if (err.response.statusCode == 404) {
+            console.log('Service ' + service_id + ' in namespace ' + namespace + ' not present');
+        } else {
+            throw err;
+        }
+    });
+
+    let ig_promise = k8sApi_network.deleteNamespacedIngress(service_id, namespace).catch(function(err) {
+        if (err.response.statusCode == 404) {
+            console.log('Ingress ' + service_id + ' in namespace ' + namespace + ' not present');
+        } else {
+            throw err;
+        }
+    });
+
+    let all_promise = Promise.all([rc_promise, sv_promise, ig_promise]);
+
+    return all_promise;
 }
