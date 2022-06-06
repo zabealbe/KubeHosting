@@ -10,10 +10,10 @@ var services = [];
 function create_service_row(service, row_n) {
     const new_row = document.getElementById('service-row').content.cloneNode(true).childNodes[1];
 
-    new_row.children[0].children[0].textContent = row_n;
-    new_row.children[1].children[0].textContent = service.name;
-    new_row.children[2].children[0].children[0].textContent = service.ingress;
-    new_row.children[2].children[0].children[0].href = 'http://' + service.ingress;
+    new_row.children[0].textContent = row_n;
+    new_row.children[1].textContent = service.name;
+    new_row.children[2].children[0].textContent = service.ingress;
+    new_row.children[2].children[0].href = 'http://' + service.ingress;
 
     new_row.children[3].children[0].textContent = `${service.replicas} / ${service.replicas}`;
 
@@ -133,8 +133,17 @@ function openServiceSettings(service) {
             serviceNameInput.reportValidity();
             return;
         }
+
+        const service_name = serviceNameInput.value;
+
+        if (services.find(s => s.name == service_name)) {
+            serviceNameInput.setCustomValidity("Service name already exists");
+            serviceNameInput.reportValidity();
+            serviceNameInput.setCustomValidity("");
+            return;
+        }
             
-        form.elements.name.value = serviceNameInput.value;
+        form.elements.name.value = service_name;
     }
 
 

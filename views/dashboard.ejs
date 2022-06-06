@@ -40,31 +40,24 @@
     #service-table .form-check-input {
       transform: scale(1.1);
     }
+
     </style>
 </head>
 
 <body>
   <template id="service-row">
-    <tr class="service-offline">
-      <th scope="row" class="d-none d-sm-table-cell">
-        <div class="my-1">
+    <tr>
+      <th scope="row" class="d-none d-sm-table-cell align-middle">
           0
-        </div>
       </th>
-      <td class="name">
-        <div class="my-1">
+      <td>
           service name
-        </div>
       </td>
-      <td class="d-none d-lg-table-cell">
-        <div class="my-1">
+      <td class="d-none d-lg-table-cell align-middle">
           <a href=""></a>
-        </div>
       </td>
-      <td class="pods">
-        <div class="align-items-center my-1">
+      <td>
           <span class="me-2">0 / 0</span>
-        </div>
       </td>
       <td>
         <button class="btn btn-sm btn-outline-primary mx-1">
@@ -83,7 +76,7 @@
         </div>
       </td>
       <td style="cursor: pointer;" onclick="">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square my-2"
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square"
           viewBox="0 0 16 16">
           <path
             d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z">
@@ -110,7 +103,7 @@
       </h6>
     </div>
     <div class="table-responsive">
-      <table class="table table-hover text-nowrap" id="service-table">
+      <table class="table table-hover text-nowrap align-middle" id="service-table">
         <thead>
           <tr>
             <th scope="col" class="d-none d-sm-table-cell">#</th>
@@ -124,20 +117,20 @@
         <tbody>
           <tr>
               <th scope="row" class="text-muted d-none d-sm-table-cell">
-                <div class="my-1">
                   0
-                </div>
               </th>
               <td class="text-muted">
                 <div class="input-group input-group-sm">
-                  <input id="serviceNameInput" type="text" class="form-control" placeholder="Service Name" pattern="[0-9a-z][0-9a-z-]+" title="must consist of lowercase alphanumeric characters or '-'" required>
+                  <form action="javascript:void(0);" onsubmit="openServiceSettings();">
+                    <input id="serviceNameInput" type="text" class="form-control" placeholder="Service Name" pattern="[0-9a-z][0-9a-z-]+" title="must consist of lowercase alphanumeric characters or '-'" required>
+                  </form>
                 </div>
               </td>
               <td class="text-muted d-none d-lg-table-cell">
                 -
               </td>
               <td class="pods">
-                <div class="d-table-cell align-items-center my-1">
+                <div class="d-table-cell align-items-center">
                   <span class="me-2">- / -</span>
                 </td>
               <td>
