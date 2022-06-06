@@ -45,6 +45,7 @@ app.use('/', require('./routes/index'));
 app.use('/', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/api/v1', require('./routes/services'));
+app.use('/api/v1', require('./routes/images'));
 
 // launch ======================================================================
 if (process.env.NODE_ENV === 'test') {

@@ -142,23 +142,39 @@ function openServiceSettings(service) {
 }
 
 function validateServiceSettings() {
-    return true;
+    const form = serviceSettings.getElementsByTagName("form")[0];
+    const image = form.elements.image.value;
+
+    return fetch("/api/v1/images/" + image, { headers: {'CSRF-Token': csrfToken}, method: 'GET', credentials: 'include' })
+        .then(res => {
+            if (res.status == 200) {
+                return true;
+            } else {
+                form.elements.image.setCustomValidity("Container image not found");
+                form.elements.image.reportValidity();
+                form.elements.image.setCustomValidity("");
+
+                return false;
+            }
+        });
 }
 
 function saveServiceSettings(form) {
-    if (!validateServiceSettings()) return;
+    validateServiceSettings().then(valid => {
+        if (valid) {
+            const service = {
+                name: form.elements.name.value,
+                replicas: form.elements.replicas.value,
+                port: form.elements.port.value,
+                image: form.elements.image.value
+            };
 
-    var service = {
-        name: form.elements.name.value,
-        replicas: form.elements.replicas.valueAsNumber,
-        port: form.elements.port.valueAsNumber,
-        image: form.elements.image.value
-    }
-
-    // check if service already exists
-    if (services.find(s => s.name == service.name)) {
-        update_service(service);
-    } else {
-        create_service(service);
-    }
+            // check if service already exists
+            if (services.find(s => s.name == service.name)) {
+                update_service(service);
+            } else {
+                create_service(service);
+            }
+        }
+    });
 }

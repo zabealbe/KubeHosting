@@ -41,7 +41,6 @@ exports.createService =  function(req, res) {
 }
 
 exports.updateService =  function(req, res) {
-    let rc_config = toKubernetesConfig(req.body);
     let owner_id = req.params.userID;
 
     User.findById(owner_id, (err, user) => {
@@ -52,8 +51,9 @@ exports.updateService =  function(req, res) {
             if (!service) {
                 res.status(400).send({'error': 'Service not found'});
             } else {
-                kubernetes.updateService(owner_id, rc_config).then((_) => {
-                    service = Object.assign(service, req.body);
+                service = Object.assign(service, req.body);
+
+                kubernetes.updateService(owner_id, service).then((_) => {
                     user.save();
 
                     res.status(200).send(service);

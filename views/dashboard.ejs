@@ -207,7 +207,7 @@
                     <label class="col-form-label">Image</label>
                   </div>
                   <div class="col-auto">
-                    <input type="text" name="image" class="form-control" placeholder="nginx" title="must be an existing container image" required>
+                    <input type="text" name="image" class="form-control" placeholder="nginx" pattern="[a-z0-9-/:]+" title="must be a valid container image (and tag)" required>
                   </div>
                   <div class="col-auto">
                     <span id="passwordHelpInline" class="form-text">

@@ -1,10 +1,22 @@
 const k8s = require('@kubernetes/client-node');
 
-if (process.env.NODE_ENV == 'test')  {
+if (process.env.NODE_ENV === 'test')  {
     k8sApi_network = {
         createNamespacedIngress: function(namespace, ingress) {
             return new Promise(function(resolve, reject) {
                 resolve(ingress);
+            });
+        },
+        
+        replaceNamespacedIngress: function(name, namespace, ig_config) {
+            return new Promise(function(resolve, reject) {
+                resolve(ig_config);
+            });
+        },
+
+        deleteNamespacedIngress: function(name, namespace) {
+            return new Promise(function(resolve, reject) {
+                resolve();
             });
         }
     }
@@ -16,7 +28,7 @@ if (process.env.NODE_ENV == 'test')  {
             });
         },
 
-        replaceNamespacedReplicationController: function(name, namespace, rc_config) {
+        createNamespacedReplicationController: function(name, namespace, rc_config) {
             return new Promise(function(resolve, reject) {
                 resolve(rc_config);
             });
@@ -26,11 +38,18 @@ if (process.env.NODE_ENV == 'test')  {
                 resolve(sv_config);
             });
         },
-        createNamespacedIngress: function(namespace, ig_config) {
+
+        replaceNamespacedReplicationController: function(name, namespace, rc_config) {
             return new Promise(function(resolve, reject) {
-                resolve(ig_config);
+                resolve(rc_config);
             });
         },
+        replaceNamespacedService: function(name, namespace, sv_config) {
+            return new Promise(function(resolve, reject) {
+                resolve(sv_config);
+            });
+        },
+
 
         deleteNamespacedReplicationController: function(name, namespace) {
             return new Promise(function(resolve, reject) {
@@ -42,11 +61,6 @@ if (process.env.NODE_ENV == 'test')  {
                 resolve();
             });
         },
-        deleteNamespacedIngress: function(name, namespace) {
-            return new Promise(function(resolve, reject) {
-                resolve();
-            });
-        }
     }
 
 } else {
