@@ -52,7 +52,7 @@ app.use('/dashboard', require('./routes/dashboard'));
 
 // require to be authenticated for /api routes
 const { checkAuthenticated } = require('./middleware/auth');
-app.use('/api', checkAuthenticated);
+//app.use('/api', checkAuthenticated);
 
 app.use('/api/v1', require('./routes/services'));
 app.use('/api/v1', require('./routes/images'));
