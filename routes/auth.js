@@ -29,17 +29,22 @@ router.get('/signup', function (req, res) {
     res.render('signup.ejs', { message: req.flash('signupMessage') });
 });
 
+const PSWD_ERROR_MSG = "Password must contain at least 8 characters with at least: \n• 1 lowercase character \n• 1 uppercase character \n• 1 digit \n• 1 simbol";
+
 // process the signup form
-router.post('/signup', passport.authenticate('local-signup', {
+router.post('/signup', body('email').isEmail().withMessage('Invalid email address!'), body('password').isStrongPassword().withMessage(PSWD_ERROR_MSG), (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        errors.array().map(e => e.msg).forEach(msg => req.flash('signupMessage', msg));
+        return res.redirect("/signup");
+    } else {
+        next();
+    }
+}, passport.authenticate('local-signup', {
     successRedirect: '/dashboard', // redirect to the secure dashboard section
     failureRedirect: '/signup', // redirect back to the signup page if there is an error
     failureFlash: true // allow flash messages
-}), body('email').isEmail(), body('password').isStrongPassword(), (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-});
+}));
 
 // =====================================
 // LOGOUT ==============================
