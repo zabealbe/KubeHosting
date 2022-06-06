@@ -30,7 +30,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');                 // set up ejs for templating
 
 // required for passport
-app.use(session({ secret: 'idkrandomseed' })); // session secret
+app.use(session({
+  secret: process.env.SESSION_SECRET,  // session secret
+  cookie: {
+    sameSite: true,
+  }
+}));
 app.use(passport.initialize());
 app.use(passport.session());                   // persistent login sessions
 app.use(csrf({ cookie: true }));
@@ -44,6 +49,11 @@ app.use(function(req, res, next) {
 app.use('/', require('./routes/index'));
 app.use('/', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
+
+// require to be authenticated for /api routes
+const { checkAuthenticated } = require('./middleware/auth');
+app.use('/api', checkAuthenticated);
+
 app.use('/api/v1', require('./routes/services'));
 app.use('/api/v1', require('./routes/images'));
 

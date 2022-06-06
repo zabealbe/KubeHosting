@@ -1,5 +1,4 @@
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]').content;
-const userID = document.head.querySelector("meta[name='user_id']").content;
 const maxPODs = document.head.querySelector("meta[name='user_slots']").content;
 
 const serviceSettings = document.getElementById('serviceSettings');
@@ -35,7 +34,7 @@ function create_service_row(service, row_n) {
 async function update_service_table() {
     const table = document.getElementById('service-table');
 
-    services = await fetch(`/api/v1/users/${userID}/services`, { headers: {'CSRF-Token': csrfToken}, method: 'GET', credentials: 'include' })
+    services = await fetch(`/api/v1/services`, { headers: {'CSRF-Token': csrfToken}, method: 'GET', credentials: 'include' })
         .then(res => {
             if (res.status == 304) {
                 return [];
@@ -54,7 +53,7 @@ async function update_service_table() {
 }
 
 function create_service(service) {
-    fetch(`/api/v1/users/${userID}/services`, {
+    fetch(`/api/v1/services`, {
         headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'CSRF-Token': csrfToken
@@ -72,7 +71,7 @@ function create_service(service) {
 }
 
 function update_service(service) {
-    fetch(`/api/v1/users/${userID}/services/${service.name}`, {
+    fetch(`/api/v1/services/${service.name}`, {
         headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'CSRF-Token': csrfToken
@@ -98,19 +97,19 @@ function toggle_service(target, id) {
 }
 
 function start_service(id) {
-    fetch(`/api/v1/users/${userID}/services/${id}/start`, { headers: {'CSRF-Token': csrfToken}, method: 'POST', credentials: 'include' })
+    fetch(`/api/v1/services/${id}/start`, { headers: {'CSRF-Token': csrfToken}, method: 'POST', credentials: 'include' })
         .then(_ => update_service_table())
         .catch(e => console.log(e));
 }
 
 function stop_service(id) {
-    fetch(`/api/v1/users/${userID}/services/${id}/stop`, { headers: {'CSRF-Token': csrfToken}, method: 'POST', credentials: 'include' })
+    fetch(`/api/v1/services/${id}/stop`, { headers: {'CSRF-Token': csrfToken}, method: 'POST', credentials: 'include' })
         .then(_ => update_service_table())
         .catch(e => console.log(e));
 }
 
 function delete_service(id) {
-    fetch(`/api/v1/users/${userID}/services/${id}`, { headers: {'CSRF-Token': csrfToken}, method: 'DELETE', credentials: 'include' })
+    fetch(`/api/v1/services/${id}`, { headers: {'CSRF-Token': csrfToken}, method: 'DELETE', credentials: 'include' })
         .then(_ => update_service_table())
         .catch(e => console.log(e));
 }

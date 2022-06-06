@@ -64,7 +64,11 @@ var userSchema = mongoose.Schema({
         serviceSchema
     ],
     plan : planPurchasedSchema,     //plan object of the the plan purchased by the user
-    blocked : {                     // an user is blocked when insert wrong password for 3 times in a row
+    is_admin: {
+        type: Boolean,
+        required: false
+    },
+    is_blocked : {                     // an user is blocked when insert wrong password for 3 times in a row
         type: Boolean,
         default: false
     },

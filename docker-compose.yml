@@ -6,6 +6,7 @@ services:
     image: node:18-alpine3.14
     restart: always
     environment:
+      - SESSION_SECRET=idkrandomlmao
       - NODE_ENV=test
     depends_on:
       - mongo

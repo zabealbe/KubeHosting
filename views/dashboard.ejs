@@ -7,7 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <meta name="csrf-token" content="<%= csrfToken %>">
-  <meta name="user_id" content="<%= user._id %>">
   <meta name="user_slots" content="10">
 
   <title>Dashboard</title>
@@ -122,7 +121,7 @@
               <td class="text-muted">
                 <div class="input-group input-group-sm">
                   <form action="javascript:void(0);" onsubmit="openServiceSettings();">
-                    <input id="serviceNameInput" type="text" class="form-control" placeholder="Service Name" pattern="[0-9a-z][0-9a-z-]+" title="must consist of lowercase alphanumeric characters or '-'" required>
+                    <input id="serviceNameInput" type="text" maxlength="16" class="form-control" placeholder="Service Name" pattern="[0-9a-z][0-9a-z-]+" title="must consist of lowercase alphanumeric characters or '-'" required>
                   </form>
                 </div>
               </td>

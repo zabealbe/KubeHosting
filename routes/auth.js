@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
-const { body, validationResult } = require('express-validator');
+const { checkSchema, validationResult } = require('express-validator');
+const auth = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -32,19 +33,32 @@ router.get('/signup', function (req, res) {
 const PSWD_ERROR_MSG = "Password must contain at least 8 characters with at least: \n• 1 lowercase character \n• 1 uppercase character \n• 1 digit \n• 1 simbol";
 
 // process the signup form
-router.post('/signup', body('email').isEmail().withMessage('Invalid email address!'), body('password').isStrongPassword().withMessage(PSWD_ERROR_MSG), (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        errors.array().map(e => e.msg).forEach(msg => req.flash('signupMessage', msg));
-        return res.redirect("/signup");
-    } else {
-        next();
-    }
-}, passport.authenticate('local-signup', {
-    successRedirect: '/dashboard', // redirect to the secure dashboard section
-    failureRedirect: '/signup', // redirect back to the signup page if there is an error
-    failureFlash: true // allow flash messages
-}));
+router.post('/signup',
+    checkSchema({
+        email: {
+            in: ['body'],
+            isEmail: true,
+            errorMessage: 'Invalid email address!'
+        },
+        password: {
+            in: ['body'],
+            isStrongPassword: true,
+            errorMessage: PSWD_ERROR_MSG
+        }
+    }),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            errors.array().map(e => e.msg).forEach(msg => req.flash('signupMessage', msg));
+            return res.redirect("/signup");
+        } else {
+            next();
+        }
+    }, passport.authenticate('local-signup', {
+        successRedirect: '/dashboard', // redirect to the secure dashboard section
+        failureRedirect: '/signup', // redirect back to the signup page if there is an error
+        failureFlash: true // allow flash messages
+    }));
 
 // =====================================
 // LOGOUT ==============================
@@ -53,5 +67,20 @@ router.get('/logout', function (req, res) {
     req.logout();
     res.redirect('/');
 });
+
+// =====================================
+// DELETE ==============================
+// =====================================
+router.delete('/users/:userID',
+    auth.checkAuthenticated,
+    function (req, res) {
+        User.findByIdAndRemove(req.params.userID, function (err) {
+            if (err) {
+                res.status(404).send({'error': 'Unknown User ID'});
+            } else {
+                res.status(200).send({'success': 'User deleted'});
+            }
+        });
+    });
 
 module.exports = router;
