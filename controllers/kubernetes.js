@@ -1,9 +1,61 @@
 const k8s = require('@kubernetes/client-node');
 
-const kc = new k8s.KubeConfig();
-kc.loadFromFile('./config/kube/config.yml');
-const k8sApi_network = kc.makeApiClient(k8s.NetworkingV1Api);
-const k8sApi_core = kc.makeApiClient(k8s.CoreV1Api);
+if (process.env.NODE_ENV == 'test')  {
+    k8sApi_network = {
+        createNamespacedIngress: function(namespace, ingress) {
+            return new Promise(function(resolve, reject) {
+                resolve(ingress);
+            });
+        }
+    }
+
+    k8sApi_core = {
+        createNamespace: function(namespace) {
+            return new Promise(function(resolve, reject) {
+                resolve(namespace);
+            });
+        },
+
+        replaceNamespacedReplicationController: function(name, namespace, rc_config) {
+            return new Promise(function(resolve, reject) {
+                resolve(rc_config);
+            });
+        },
+        createNamespacedService: function(namespace, sv_config) {
+            return new Promise(function(resolve, reject) {
+                resolve(sv_config);
+            });
+        },
+        createNamespacedIngress: function(namespace, ig_config) {
+            return new Promise(function(resolve, reject) {
+                resolve(ig_config);
+            });
+        },
+
+        deleteNamespacedReplicationController: function(name, namespace) {
+            return new Promise(function(resolve, reject) {
+                resolve();
+            });
+        },
+        deleteNamespacedService: function(name, namespace) {
+            return new Promise(function(resolve, reject) {
+                resolve();
+            });
+        },
+        deleteNamespacedIngress: function(name, namespace) {
+            return new Promise(function(resolve, reject) {
+                resolve();
+            });
+        }
+    }
+
+} else {
+    const kc = new k8s.KubeConfig();
+    kc.loadFromFile('./config/kube/config.yml');
+    const k8sApi_network = kc.makeApiClient(k8s.NetworkingV1Api);
+    const k8sApi_core = kc.makeApiClient(k8s.CoreV1Api);
+}
+
 
 function createReplicationControllerConfig(config) {
     let rc_config = {
@@ -137,6 +189,7 @@ exports.createService = function(namespace, service) {
     // Undo the creation if any of the promises fail
     return all_proimse.catch(function(err) {
         console.log(err);
+        
         console.log("Rolling back resources creation");
         exports.deleteService(namespace, rc_config.metadata.name);
     });

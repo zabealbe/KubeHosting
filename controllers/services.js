@@ -102,12 +102,11 @@ exports.stopService = function(req, res, next) {
             res.status(404).send({'error': 'User not found'});
         } else {
             let service = user.services.find(service => service.name == service_id);
-            let rc_config = toKubernetesConfig(service);
 
             rc_config.spec.replicas = 0;
             
             if (service) {
-                kubernetes.updateService(owner_id, rc_config).then((_) => {                           
+                kubernetes.updateService(owner_id, service).then((_) => {                           
                     service.active = false;
                     user.save();
                 

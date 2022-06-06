@@ -5,6 +5,8 @@ services:
   node:
     image: node:18-alpine3.14
     restart: always
+    environment:
+      - NODE_ENV=test
     depends_on:
       - mongo
     entrypoint:

@@ -47,4 +47,10 @@ app.use('/dashboard', require('./routes/dashboard'));
 app.use('/api/v1', require('./routes/services'));
 
 // launch ======================================================================
+if (process.env.NODE_ENV === 'test') {
+  console.log('Running in test mode, some functions will be disabled');
+} else {
+  console.log('Running in production mode');
+}
+
 module.exports = app
