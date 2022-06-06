@@ -66,8 +66,8 @@ if (process.env.NODE_ENV === 'test')  {
 } else {
     const kc = new k8s.KubeConfig();
     kc.loadFromFile('./config/kube/config.yml');
-    const k8sApi_network = kc.makeApiClient(k8s.NetworkingV1Api);
-    const k8sApi_core = kc.makeApiClient(k8s.CoreV1Api);
+    k8sApi_network = kc.makeApiClient(k8s.NetworkingV1Api);
+    k8sApi_core = kc.makeApiClient(k8s.CoreV1Api);
 }
 
 

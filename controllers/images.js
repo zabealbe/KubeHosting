@@ -9,6 +9,10 @@ exports.getImage = function(req, res, next) {
         let repo = match.groups.repository || "";
         let image = match.groups.image;
         let tag = match.groups.tag || "latest";
+
+        if (!image.includes("/")) {
+            image = `library/${image}`;
+        }
         
         fetch(`https://hub.docker.com/v2/repositories/${image}/tags/${tag}`, { method: "GET", headers: { "Content-Type": "application/json" } })
             .then(reg_res => {
