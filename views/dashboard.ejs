@@ -207,7 +207,7 @@
                     <label class="col-form-label">Image</label>
                   </div>
                   <div class="col-auto">
-                    <input type="text" name="image" class="form-control" placeholder="nginx" pattern="[a-z0-9-/:]+" title="must be a valid container image (and tag)" required>
+                    <input type="text" name="image" class="form-control" placeholder="nginx" pattern="^(?<repository>[\w.\-_]+((?::\d+|)(?=\/[a-z0-9._-]+\/[a-z0-9._-]+))|)(?:\/|)(?<user>[a-z0-9.\-_]+)(?<image>(?:\/[a-z0-9.\-_]+|))(:(?<tag>[\w.\-_]{1,127})|)$" title="must be a valid container image (and tag)" required>
                   </div>
                   <div class="col-auto">
                     <span id="passwordHelpInline" class="form-text">
