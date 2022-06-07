@@ -1,7 +1,9 @@
 const express = require('express');
 const passport = require('passport');
 const { checkSchema, validationResult } = require('express-validator');
-const auth = require('../middleware/auth');
+const { checkAuthenticated } = require('../middleware/auth');
+var User = require('../models/user');
+
 
 const router = express.Router();
 
@@ -71,14 +73,14 @@ router.get('/logout', function (req, res) {
 // =====================================
 // DELETE ==============================
 // =====================================
-router.delete('/users/:userID',
-    auth.checkAuthenticated,
+router.post('/delete',
+    checkAuthenticated,
     function (req, res) {
-        User.findByIdAndRemove(req.params.userID, function (err) {
+        User.findByIdAndRemove(req.user._id, function (err) {
             if (err) {
                 res.status(404).send({'error': 'Unknown User ID'});
             } else {
-                res.status(200).send({'success': 'User deleted'});
+                res.status(200).redirect('/');
             }
         });
     });

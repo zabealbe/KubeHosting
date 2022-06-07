@@ -3,6 +3,7 @@ var LocalStrategy   = require('passport-local').Strategy;
 
 // load up the user model
 var User            = require('../models/user');
+var Plan            = require('../models/plan');
 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -87,7 +88,6 @@ module.exports = function(passport) {
                 return done(err);
 
             // check to see if theres already a user with that email
-            console.log(user)
             if (user) {
                 return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
             } else {
@@ -95,16 +95,27 @@ module.exports = function(passport) {
                 // if there is no user with that email
                 // create the user
                 var newUser            = new User();
-
-                // set the user's local credentials
-                newUser.local.email    = email;
-                newUser.local.password = newUser.generateHash(password);
-
-                // save the user
-                newUser.save(function(err) {
+                Plan.findOne({ 'plan.name' : 'free' }, function(err, defaultPlan) {
                     if (err)
-                        throw err;
-                    return done(null, newUser);
+                        return done(err);
+                    if (!defaultPlan)
+                        return done(null, false, req.flash('signupMessage', 'No default plan found.'));
+
+                    // set the user's local credentials
+                    newUser.local.email    = email;
+                    newUser.local.password = newUser.generateHash(password);
+                    newUser.username       = email.split('@')[0];
+                    newUser.plan           = {
+                        plan: defaultPlan._id,
+                        start_date: new Date()
+                    }
+
+                    // save the user
+                    newUser.save(function(err) {
+                        if (err)
+                            throw err;
+                        return done(null, newUser);
+                    });
                 });
             }
 
