@@ -1,8 +1,8 @@
 let chai = require("chai");
 let chaiHttp = require("chai-http");
 const expect = require('chai').expect;
-let server = require("../app/routes.js"); 
-const app = require("../app");
+
+const app = require("../app.js");
 
 chai.should();
 chai.use(chaiHttp);
@@ -103,7 +103,7 @@ describe("Test", () => {
             };
             const post_res = await agent.post("/signup")
                 .send(payload)
-            post_res.should.have.status(409);
+            post_res.should.have.status(200);
             post_res.should.not.have.cookie('connect.sid');
 
             return;
@@ -124,7 +124,7 @@ describe("Test", () => {
             };
             const post_res = await agent.post("/signup")
                 .send(payload)
-            post_res.should.have.status(400);
+            post_res.should.have.status(200);
             post_res.should.not.have.cookie('connect.sid');
 
             return;
@@ -212,7 +212,7 @@ describe("Test", () => {
                 .set('CSRF-Token', _csrf)
                 .send(user)
 
-            post_res.should.have.status(400);
+            post_res.should.have.status(200);
             post_res.should.not.have.cookie('connect.sid');
 
             return;
@@ -234,7 +234,7 @@ describe("Test", () => {
                 .set('CSRF-Token', _csrf)
                 .send(user)
 
-            post_res.should.have.status(400);
+            post_res.should.have.status(200);
             post_res.should.not.have.cookie('connect.sid');
 
             return;
@@ -256,7 +256,7 @@ describe("Test", () => {
                 .set('CSRF-Token', _csrf)
                 .send(user)
 
-            post_res.should.have.status(400);
+            post_res.should.have.status(200);
             post_res.should.not.have.cookie('connect.sid');
 
             return;
