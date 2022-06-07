@@ -1,25 +1,22 @@
 let chai = require("chai");
 let chaiHttp = require("chai-http");
 const expect = require('chai').expect;
-//let server = require("../app/routes.js"); 
+let server = require("../app/routes.js"); 
 const app = require("../app");
-const request = require('supertest');
-
-/*from django.test import Client
-csrf_client = Client(enforce_csrf_checks=True)*/
-
-//csrf_token = '%s' % response.context['csrf_token']
 
 chai.should();
-
 chai.use(chaiHttp);
 
-const agent = chai.request.agent(app) //
+const agent = chai.request.agent(app)
+
+function extractCsrfToken(res) {
+    return res.text.match(/name="_csrf" value="(.*?)"/)[1];
+}
 
 describe("Test", () => {
 
-    describe("GET /", () => {
-        it("It should GET /", (done) => {
+    describe("Landing page", () => {
+        it("It accesses to the landing page", (done) => {
             chai.request(app)
                 .get("/")
                 .end((err, response) => {
@@ -29,8 +26,8 @@ describe("Test", () => {
         });
     });
 
-    describe("GET /login", () => {
-        it("It should GET /login", (done) => {
+    describe("Login page", () => {
+        it("It accesses to the login page", (done) => {
             chai.request(app)
                 .get("/login")
                 .end((err, response) => {
@@ -40,8 +37,17 @@ describe("Test", () => {
         });
     });
 
-    describe("GET /signup", () => {
-        it("It should GET /signup", (done) => {
+    /*describe("Login page async", () => {
+        it("It accesses to the login page", async () => {
+            const res = await chai.request(app).get("/login").send()
+
+            res.should.have.status(200);
+            return;
+        });
+    });*/
+
+    describe("Signup page", () => {
+        it("It accesses to the signup page", (done) => {
             chai.request(app)
                 .get("/signup")
                 .end((err, response) => {
@@ -51,130 +57,135 @@ describe("Test", () => {
         });
     });
 
-    describe("GET /home", () => {
-        it("It should NOT GET /home", (done) => {
-            chai.request(app)
-                .get("/home")
-                .end((err, response) => {
-                    response.should.have.status(404);
-                done();
-                });    
+    describe("Signup flow", () => {
+        it("It successfully creates an account", async () => {
+            const get_res = await agent.get("/signup")
+                .send()
+            get_res.should.have.status(200);
+
+            const _csrf = extractCsrfToken(get_res)
+            const payload = {
+                    email: "kev@gmail.com",
+                    password: "kev",
+                    _csrf: _csrf
+            };
+            const post_res = await agent.post("/signup")
+                .send(payload)
+            post_res.should.have.status(200);
+            post_res.should.not.have.cookie('connect.sid');
+
+            return;
         });
     });
 
+    /*describe("Signup flow", () => {
+        it("It fails to create an account", async () => {
+            const get_res = await agent.get("/signup")
+                .send()
+            get_res.should.have.status(200);
 
-    /*describe("POST /login", () => {
-        it("It should NOT POST /login", (done) => {
-            const user = {
-                    email: "achille@gmail.com",
-                    password: "123"
+            const _csrf = extractCsrfToken(get_res)
+            const payload = {
+                    email: "a",
+                    password: "000",
+                    _csrf: _csrf
             };
-            chai.request(app)
-                .post("/login")
-                //.set('CSRF-Token', _csrf)
-                //.set('Accept', 'application/json') //
-                //.set('Content-Type', 'application/json') //
-                .type("form") //
-                .send(user)
-                //.expect(200) //
-                //.expect('Content-Type', /json/) //
-                /*.expect(function(response) { //
-                    expect(response.body).not.to.be.empty; //
-                    expect(response.body).to.be.an('object'); //
-                 })
-                .end(done); / //
-                .end((err, response) => {
-                    response.should.have.status(403);
-                    //response.body.should.be.eql(user);
-                    expect(response.body).to.deep.equal({});
-                    //response.body.should.have.property('email').eq("achille@gmail.com");
-                    //response.body.should.have.property('password').eq("123");
-                done();
-                });  
+            const post_res = await agent.post("/signup")
+                .send(payload)
+            post_res.should.have.status(400);
+            post_res.should.not.have.cookie('connect.sid');
+
+            return;
         });
     });*/
 
-    /*describe("POST /login", () => {
-        it("It should POST /login", (done) => {
+    describe("Logout flow", () => {
+        it("It successfully creates an account and then logouts", async () => {
             const user = {
                     email: "kev@gmail.com",
                     password: "kev"
             };
-            chai.request(app)
-                .post("/login")
-                //.set('CSRF-Token', _csrf)
-                .type("form")
-                .send({ email: "kev@gmail.com", password: "kev"})
-                //.send(user)
-                .end((err, response) => {
-                    response.should.have.status(200);
-                    //expect(response.body).to.deep.equal({});
-                done();
-                });  
-        });
-    });*/
+            const get_res = await chai.request(app).get("/login").send()
+            
+            get_res.should.have.status(200);
+            const _csrf = extractCsrfToken(get_res)
 
-    request.get("/login").end(function(err, res) { 
-        var csrfToken = extractCsrfToken(res);
-        request
-        .post("/users/loginauth") // this controller validates the authentication information provided is correct
-        .send({
-            email: 'kev@gmail.com',
-            password: 'kev',
-            _csrf: csrfToken // let's take the CSRF token we retrieved
-        })
-        .end(function(error, response){
-        done();
+            const post_res = await chai.request(app).get("/logout")
+                .set('CSRF-Token', _csrf)
+                .send()
+
+            post_res.should.have.status(200);
+            post_res.should.have.cookie('connect.sid');
+
+            return;
         });
     });
 
-    /*describe("POST /signup", () => {
-        it("It should POST /signup", (done) => {
+    /*describe("Login flow", () => {
+        it("It successfully authenticates", async () => {
             const user = {
-                    email: "rick@gmail.com",
-                    password: "123"
+                    email: "kev@gmail.com",
+                    password: "kev"
             };
-            chai.request(app)
-                .post("/signup")
+            const get_res = await chai.request(app).get("/login").send()
+            
+            get_res.should.have.status(200);
+            const _csrf = extractCsrfToken(get_res)
+
+            const post_res = await chai.request(app).post("/login")
                 .set('CSRF-Token', _csrf)
-                .type("form")
                 .send(user)
-                .end((err, response) => {
-                    response.should.have.status(201);
-                done();
-                });  
+
+            post_res.should.have.status(200);
+            post_res.should.have.cookie('connect.sid');
+
+            return;
         });
     });*/
 
+    describe("Login flow", () => {
+        it("It successfully authenticates", async () => {
+            const user = {
+                email: "kev@gmail.com",
+                password: "kev"
+            };
+            const get_res = await agent.get("/login").send()
+            
+            get_res.should.have.status(200);
+            const _csrf = extractCsrfToken(get_res)
+
+            const post_res = await agent.post("/login")
+                .set('CSRF-Token', _csrf)
+                .send(user)
+
+            post_res.should.have.status(200);
+            post_res.should.not.have.cookie('connect.sid');
+
+            return;
+        });
+    });
+
+    describe("Login flow", () => {
+        it("It doesn't successfully authenticate", async () => {
+            const user = {
+                email: "kev@gmail.com",
+                password: "123"
+            };
+            const get_res = await agent.get("/login").send()
+            
+            get_res.should.have.status(200);
+            const _csrf = extractCsrfToken(get_res)
+
+            const post_res = await agent.post("/login")
+                .set('CSRF-Token', _csrf)
+                .send(user)
+
+            post_res.should.have.status(400);
+            post_res.should.not.have.cookie('connect.sid');
+
+            return;
+        });
+    });
+
+
 });
-
-
-/*agent.get('/signup').end((err, res) => {
-    // do some tests and get the token
-    // ...
-    // the agent will use the cookie from the previous request
-    // so you only need to set the CSRF-Token header 
-    agent.post('/signup')
-      .set('CSRF-Token', _csrf)
-      .send({ email: 'me@gmail.com', password: '123' })
-      .end((err, res) => {
-         // handle the post response 
-         response.should.have.status(201);
-      })
-  })
-  
-  agent.close()*/
-
-//const agent = chai.request.agent(app)
-/*agent
-  .post('/login')
-  .send({ email: 'kev@gmail.com', password: 'kev' })
-  .then((response) => {
-    expect(response).to.have.cookie('sessionid');
-    // The `agent` now has the sessionid cookie saved, and will send it
-    // back to the server in the next request:
-    return agent.get('/user/kev@gmail.com')
-      .then((response) => {
-         expect(response).to.have.status(200);
-      });
-  });*/
