@@ -18,7 +18,7 @@ exports.createService =  function(req, res) {
                 let service = {
                     name: req.body.name,
                     active: false,
-                    ingress: `${req.body.name}.${req.user.username}.` + process.env.DOMAIN,
+                    ingress: `${req.body.name}-${req.user.username}.` + process.env.DOMAIN,
                     replicas: req.body.replicas,
                     port: req.body.port,
                     image: req.body.image,
