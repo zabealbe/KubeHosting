@@ -22,9 +22,15 @@
 					<div class="card shadow-lg">
 						<div class="card-body p-5">
 							<h1 class="fs-4 card-title fw-bold mb-4">Sign up</h1>
-							<% if (message.length > 0) { %>
-								<section class="message"><p><%= message %></p></section>
-							<% } %>
+							<% message.forEach(msg => { %>
+								<section class="message">
+									<p>
+										<% msg.split("\n").forEach(line => { %>
+											<%= line %><br> 
+										<%}); %>
+									</p>
+								</section>
+							<% }); %>
 							<form action="/signup" method="post" novalidate="" autocomplete="off">
 								<div class="mb-3">
 									<label class="mb-2 text-muted" for="email">Email</label>

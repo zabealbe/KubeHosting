@@ -1,30 +1,135 @@
 FORMAT: 1A
-HOST: https://kubehosting.apiblueprint.org/
+HOST: https://kubehosting.apiblueprint.org
 
 # kubehosting
 
 KubeHosting API documentation
 
-## User collection [/user]
-
-### Create a New User [POST]
-Add a new user to the list of registered users. It takes a JSON object
-containing the user's email address and its password.
+## Registration [/api/v1/signup]
+### Register a new user [POST]
 
 + Request (application/json)
 
         {
-            "email": "me@example.com",
-            "password": "Ar4nd0mP4ssw0rD"
+            "email": "example@example.com",
+            "password": "supersecret"
         }
++ Response 200
 
+## Login [/api/v1/login]
+### Login [POST]
+
++ Request (application/json)
+
+        {
+            "email": "example@example.com",
+            "password": "supersecret"
+        }
++ Response 200
++ Response 400
+
+## Logout [/api/v1/logout]
+### Logout [POST]
+
++ Request ()
++ Respose 200
+
+## User's services [/api/v1/user/{userID}/services/{serviceID}]
+### Get user's services [GET]
++ Parameters
+    + userID (uuid) - ID of the user
++ Request (application/json)
+        
+        {
+            "name": "my-blog",
+            "config": ".yaml file"
+        }
 + Response 200 (application/json)
 
-        {}
+        {
+            [{
+                "name": "my-blog", 
+                "config: ".yaml file"
+            }]
+        }
 
+### Create a service [POST]
++ Parameters
+    + userID (uuid) - ID of the user
++ Request (application/json)
+        
+        {
+            "name": "my-blog",
+            "config": ".yaml file"
+        }
++ Response 200
+
+### Edit a service [PUT]
++ Parameters
+    + userID (uuid) - ID of the user
+    + serviceID (uuid) - ID of the service
++ Request (application/json)
+        
+        {
+            "name": "my-blog",
+            "config": ".yaml file"
+        }
++ Response 200
+
+### Delete a service [DELETE]
++ Parameters
+    + userID (uuid) - ID of the user
+    + serviceID (uuid) - ID of the service
++ Request ()
++ Response 200
+
+## Start a service [/api/v1/users/{userID}/services/{serviceID}/start]
+### Start [POST]
++ Parameters
+    + userID (uuid) - ID of the user
+    + serviceID (uuid) - ID of the service
++ Request ()
++ Response 200
+
+## Stop a service [/api/v1/users/{userID}/services/{serviceID}/stop]
+### Stop [POST]
++ Parameters
+    + userID (uuid) - ID of the user
+    + serviceID (uuid) - ID of the service
++ Request ()
++ Response 200
+
+## Create a service using an existing docker image [/api/v1/images/{image}]
+### Get Docker image [GET]
++ Parameters
+    + image (string) - name of the Docker image to fetch
++ Request ()
++ Response 200 (application/json)
+
+        {
+            "name": <name>,
+            "tag": <tag>,
+            "fsLayers": [
+                {
+                    "blobSum": <digest>
+                },
+                ...
+            ],
+            "history": <v1 images>,
+            "signature": <JWS>
+        }
 + Response 400 (application/json)
 
         {
-            "error_msg": "Password is too short",
-            "reason": "password: 123"
+            "error": "Invalid Image"
+        }
++ Response 404 (application/json)
+
+        {
+            "error": "Image not found"
+        }
++ Response 500 (application/json)
+
+        {
+            "error": "Error fetching image"
         }
