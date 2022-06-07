@@ -110,18 +110,15 @@ function createReplicationControllerConfig(config) {
 }
 
 
-function createServiceConfig(rc_config) {
+function createServiceConfig(config) {
     // get all the ports from the config
-    let ports = [];
-    for (let i = 0; i < rc_config.spec.template.spec.containers[0].ports.length; i++) {
-        ports.push(rc_config.spec.template.spec.containers[0].ports[i].containerPort);
-    }
+    let ports = [config.port]
 
     let sv_config = {
         apiVersion: 'v1',
         kind: 'Service',
         metadata: {
-            name: rc_config.metadata.name,
+            name: config.name,
         },
         spec: {
             ports: [
@@ -131,7 +128,7 @@ function createServiceConfig(rc_config) {
                 },
             ],
             selector: {
-                app: rc_config.metadata.name,
+                app: config.name,
             },
         },
     };
@@ -139,22 +136,19 @@ function createServiceConfig(rc_config) {
     return sv_config
 }
 
-function createIngressConfig(sv_config) {
-    let ports = [];
-    for (let i = 0; i < sv_config.spec.ports.length; i++) {
-        ports.push(sv_config.spec.ports[i].targetPort);
-    }
+function createIngressConfig(config) {
+    let ports = [config.port]
   
     let ig_config = {
         apiVersion: 'networking.k8s.io/v1',
         kind: 'Ingress',
         metadata: {
-            name: sv_config.metadata.name,
+            name: config.name,
         },
         spec: {
             rules: [
                 {
-                    host: sv_config.metadata.name + '.kubehosting.duckdns.org',
+                    host: config.ingress,
                     http: {
                         paths: [
                             {
@@ -162,7 +156,7 @@ function createIngressConfig(sv_config) {
                                 path: '/',
                                 backend: {
                                     service: {
-                                        name: sv_config.metadata.name,
+                                        name: config.name,
                                         port: {
                                             number: ports[0],
                                         }
@@ -191,8 +185,8 @@ exports.createNamespace =  function(name) {
 
 exports.createService = function(namespace, service) {
     let rc_config = createReplicationControllerConfig(service);
-    let sv_config = createServiceConfig(rc_config);
-    let ig_config = createIngressConfig(sv_config);
+    let sv_config = createServiceConfig(service);
+    let ig_config = createIngressConfig(service);
 
     let rc_promise = k8sApi_core.createNamespacedReplicationController(namespace, rc_config);
     let sv_promise = k8sApi_core.createNamespacedService(namespace, sv_config);
@@ -205,7 +199,9 @@ exports.createService = function(namespace, service) {
         console.log(err);
         
         console.log("Rolling back resources creation");
-        exports.deleteService(namespace, rc_config.metadata.name);
+        exports.deleteService(namespace, rc_config.metadata.name)
+
+        return Promise.reject(err);
     });
 }
 
@@ -213,8 +209,12 @@ exports.updateService = function(namespace, service) {
     let service_id = service.name;
     
     let rc_config = createReplicationControllerConfig(service);
-    let sv_config = createServiceConfig(rc_config);
-    let ig_config = createIngressConfig(sv_config);
+    let sv_config = createServiceConfig(service);
+    let ig_config = createIngressConfig(service);
+
+    if (!service.active) {
+        rc_config.spec.replicas = 0;
+    }
 
     let rc_promise = k8sApi_core.replaceNamespacedReplicationController(service_id, namespace, rc_config);
     let sv_promise = k8sApi_core.replaceNamespacedService(service_id, namespace, sv_config);
