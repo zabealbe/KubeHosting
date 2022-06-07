@@ -13,9 +13,12 @@ router.use(checkAuthenticated);
 // =====================================
 router.get('/',
     function(req, res) {
-        res.render('profile.ejs', {
-            user : req.user, // get the user out of session and pass to template
-            message: req.flash('profileMessage')
+        req.user.getPlan().then(user_plan => {
+            res.render('profile.ejs', {
+                user : req.user, // get the user out of session and pass to template
+                user_plan: user_plan,
+                message: req.flash('profileMessage')
+            });
         });
     });
 
@@ -125,12 +128,11 @@ router.post('/',
                                 console.log(err);
                                 res.status(500).send({ error: 'Error updating profile.' });
                             } else {
-                                res.status(200).send({ error: 'Profile updated successfully.' });
+                                res.status(200).send({ message: 'Profile updated successfully.' });
                             }});
                     }
                 });
             }});
-            next();
     });
 
 router.post('/password',
@@ -178,7 +180,7 @@ router.post('/password',
                                 console.log(err);
                                 res.status(500).send({ error: 'Error updating password.' });
                             } else {
-                                res.status(200).send({ error: 'Password updated successfully.' });
+                                res.status(200).send({ message: 'Password updated successfully.' });
                             }
                         });
                     }

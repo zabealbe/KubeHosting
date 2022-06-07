@@ -73,14 +73,14 @@ router.get('/logout', function (req, res) {
 // =====================================
 // DELETE ==============================
 // =====================================
-router.delete('/delete',
+router.post('/delete',
     checkAuthenticated,
     function (req, res) {
         User.findByIdAndRemove(req.user._id, function (err) {
             if (err) {
                 res.status(404).send({'error': 'Unknown User ID'});
             } else {
-                res.status(200).send({'success': 'User deleted'});
+                res.status(200).redirect('/');
             }
         });
     });

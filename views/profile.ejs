@@ -16,33 +16,28 @@
 			<div class="bg-white shadow rounded-lg d-block d-sm-flex">
 				<div class="profile-tab-nav border-right">
 					<div class="p-4">
-						<!--
 						<div class="img-circle text-center mb-3">
-							<img src="img/user2.jpg" alt="Image" class="shadow">
+							<i class="fa fa-user fa-5x text-primary"></i>
 						</div>
-						-->
 						<h4 class="text-center"><%= user.username %></h4>
+						<h5 class="text-center lead text-muted"><%= user.firstname %> <%= user.lastname %></h4>
 					</div>
 					<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 						<a class="nav-link active" id="account-tab" data-toggle="pill" href="#account" role="tab" aria-controls="account" aria-selected="true">
-							<i class="fa fa-home text-center mr-1"></i> 
-							Account
+							<i class="fa fa-id-card-o text-center mr-1"></i> 
+							Personal data
 						</a>
 						<a class="nav-link" id="password-tab" data-toggle="pill" href="#password" role="tab" aria-controls="password" aria-selected="false">
 							<i class="fa fa-key text-center mr-1"></i> 
 							Password
 						</a>
-						<a class="nav-link" id="security-tab" data-toggle="pill" href="#security" role="tab" aria-controls="security" aria-selected="false">
-							<i class="fa fa-user text-center mr-1"></i> 
-							Security
+						<a class="nav-link" id="subscription-tab" data-toggle="pill" href="#subscription" role="tab" aria-controls="subscription" aria-selected="false">
+							<i class="fa fa-credit-card text-center mr-1" ></i> 
+							Subscription
 						</a>
-						<a class="nav-link" id="application-tab" data-toggle="pill" href="#application" role="tab" aria-controls="application" aria-selected="false">
-							<i class="fa fa-tv text-center mr-1"></i> 
-							Application
-						</a>
-						<a class="nav-link" id="notification-tab" data-toggle="pill" href="#notification" role="tab" aria-controls="notification" aria-selected="false">
-							<i class="fa fa-bell text-center mr-1"></i> 
-							Notification
+						<a class="nav-link" id="delete-account-tab" data-toggle="pill" href="#delete-account" role="tab" aria-controls="delete-account" aria-selected="false">
+							<i class="fa fa-trash text-center mr-1" ></i> 
+							Delete account
 						</a>
 					</div>
 				</div>
@@ -75,86 +70,53 @@
 										<input type="text" name="username" class="form-control" value="<%= user.username %>">
 									</div>
 								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label>Company</label>
-										<input type="text" name="" class="form-control" value="<%= user.company %>">
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label>Designation</label>
-										<input type="text" name="" class="form-control" value="<%= user.job %>">
-									</div>
-								</div>
-								<div class="col-md-12">
-									<div class="form-group">
-										<label>Bio</label>
-										<textarea class="form-control" rows="4"><%= user.bio %></textarea>
-									</div>
-								</div>
 							</div>
 							<div>
 								<button type="submit" class="btn btn-primary">Update</button>
-								<button class="btn btn-light" onclick="(this) => {this.parent.parent.reset()}">Cancel</button>
+								<button type="reset" class="btn btn-light">Cancel</button>
 							</div>	
 						</form>
 					</div>
 					<div class="tab-pane fade" id="password" role="tabpanel" aria-labelledby="password-tab">
 						<h3 class="mb-4">Password Settings</h3>
 						<form action="javascript:void(0);" onsubmit="updatePassword(this);" method="POST">
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-								  	<label>Old password</label>
-								  	<input type="password" name="oldpassword" class="form-control">
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-								  	<label>New password</label>
-								  	<input type="password" name="newpassword" class="form-control">
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-								  	<label>Confirm new password</label>
-								  	<input type="password" name="confirmnewpassword" class="form-control">
-								</div>
-							</div>
-						</div>
-						<div>
-							<input type="hidden" name="email" value="<%= user.local.email %>">
-							<button class="btn btn-primary">Update</button>
-							<button class="btn btn-light">Cancel</button>
-						</div>
-						<form>
-					</div>
-					<div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
-						<h3 class="mb-4">Security Settings</h3>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-								  	<label>Login</label>
-								  	<input type="text" class="form-control">
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-								  	<label>Two-factor auth</label>
-								  	<input type="text" class="form-control">
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-									<div class="form-check">
-										<input class="form-check-input" type="checkbox" value="" id="recovery">
-										<label class="form-check-label" for="recovery">
-										Recovery
-										</label>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Old password</label>
+										<input type="password" name="oldpassword" class="form-control">
 									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>New password</label>
+										<input type="password" name="newpassword" class="form-control">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Confirm new password</label>
+										<input type="password" name="confirmnewpassword" class="form-control">
+									</div>
+								</div>
+							</div>
+							<div>
+								<input type="hidden" name="email" value="<%= user.local.email %>">
+								<button type="submit" class="btn btn-primary">Update</button>
+								<button type="reset" class="btn btn-light">Cancel</button>
+							</div>
+						</form>
+					</div>
+					<div class="tab-pane fade" id="subscription" role="tabpanel" aria-labelledby="subscription-tab">
+						<h3 class="mb-4">Subscription Settings</h3>
+						<div class="row">
+							<div class="card mb-4">
+								<div class="card-body">
+								<h3 class="card-title"><%= user_plan.name %></h3>
+								<h6 class="card-subtitle mb-2 text-muted">Slots: <%= user_plan.slots %></h6>
+								<p class="card-text"><%= user_plan.description %></p>
 								</div>
 							</div>
 						</div>
@@ -163,61 +125,27 @@
 							<button class="btn btn-light">Cancel</button>
 						</div>
 					</div>
-					<div class="tab-pane fade" id="application" role="tabpanel" aria-labelledby="application-tab">
-						<h3 class="mb-4">Application Settings</h3>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-									<div class="form-check">
-										<input class="form-check-input" type="checkbox" value="" id="app-check">
-										<label class="form-check-label" for="app-check">
-										App check
-										</label>
-									</div>
-									<div class="form-check">
-										<input class="form-check-input" type="checkbox" value="" id="defaultCheck2" >
-										<label class="form-check-label" for="defaultCheck2">
-										Lorem ipsum dolor sit.
-										</label>
-									</div>
+					<div class="tab-pane fade" id="delete-account" role="tabpanel" aria-labelledby="delete-account-tab">
+						<h3 class="mb-4">Delete account</h3>
+						<form action="/delete" method="POST">
+							<p>
+								By deleting your account you will lose all of your personal settings and <strong>all your services.</strong>
+								<br>
+								Are you sure you want to proceed?
+							</p>
+							<div class="form-group">
+								<div class="form-check">
+									<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+									<input type="checkbox" value="" required>
+									<label>
+										Yes, delete my account and all of my data.
+									</label>
 								</div>
 							</div>
-						</div>
-						<div>
-							<button class="btn btn-primary">Update</button>
-							<button class="btn btn-light">Cancel</button>
-						</div>
-					</div>
-					<div class="tab-pane fade" id="notification" role="tabpanel" aria-labelledby="notification-tab">
-						<h3 class="mb-4">Notification Settings</h3>
-						<div class="form-group">
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value="" id="notification1">
-								<label class="form-check-label" for="notification1">
-									Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum accusantium accusamus, neque cupiditate quis
-								</label>
+							<div>
+								<button class="btn btn-danger" type="submit">Delete</button>
 							</div>
-						</div>
-						<div class="form-group">
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value="" id="notification2" >
-								<label class="form-check-label" for="notification2">
-									hic nesciunt repellat perferendis voluptatum totam porro eligendi.
-								</label>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value="" id="notification3" >
-								<label class="form-check-label" for="notification3">
-									commodi fugiat molestiae tempora corporis. Sed dignissimos suscipit
-								</label>
-							</div>
-						</div>
-						<div>
-							<button class="btn btn-primary">Update</button>
-							<button class="btn btn-light">Cancel</button>
-						</div>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -231,6 +159,13 @@
 	<script>
 		const csrfToken = document.head.querySelector('meta[name="csrf-token"]').content;
 
+		function reset(form) {
+				for (let element of form.elements) {
+					element.setCustomValidity('');
+					element.classList.remove('is-invalid');
+				}
+			}
+
 		function updateSettings(form) {
 			const data = Object.fromEntries((new FormData(form)).entries());
 
@@ -241,34 +176,13 @@
 				body: JSON.stringify(data)
 			})
 				.then(function(data) {
-					console.log(data);
-				})
-				.catch(function(error) {
-					console.log(error);
-				});
-		}
-
-		function updatePassword(form) {
-			const data = Object.fromEntries((new FormData(form)).entries());
-
-			function reset() {
-				for (let element of form.elements) {
-					element.setCustomValidity('');
-					element.classList.remove('is-invalid');
-				}
-			}
-
-			fetch('/profile/password', { 
-				headers: {'CSRF-Token': csrfToken, 'Content-Type': 'application/json'},
-				method: 'POST',
-				credentials: 'include',
-				body: JSON.stringify(data)
-			})
-				.then(function(data) {
 					data.json().then(function(data) {
-						reset();
+						reset(form);
 
-						const errors = data.errors || [data];
+						const errors = data.errors;
+						if (!errors && data.error)
+							errors = [data.error];
+							
 						if (errors)
 							errors.forEach(function(error) {
 								const param = error.param;
@@ -280,10 +194,47 @@
 								element.reportValidity();
 								element.setCustomValidity('');
 							});
+						else
+							window.location.reload();
 					});
 				})
 				.catch(function(error) {
-					console.log("IIIIIIIIIIIIIIIIIIIIIII")
+					console.log(error);
+				});
+		}
+
+		function updatePassword(form) {
+			const data = Object.fromEntries((new FormData(form)).entries());
+
+			fetch('/profile/password', { 
+				headers: {'CSRF-Token': csrfToken, 'Content-Type': 'application/json'},
+				method: 'POST',
+				credentials: 'include',
+				body: JSON.stringify(data)
+			})
+				.then(function(data) {
+					data.json().then(function(data) {
+						reset(form);
+
+						if (!errors && data.error)
+							errors = [data.error];
+
+						if (errors)
+							errors.forEach(function(error) {
+								const param = error.param;
+								const message = error.msg || error.error;
+								const element = form.elements[param];
+
+								element.classList.add('is-invalid');
+								element.setCustomValidity(message);
+								element.reportValidity();
+								element.setCustomValidity('');
+							});
+						else
+							window.location.reload();
+					});
+				})
+				.catch(function(error) {
 					console.log(error);
 				});
 		}
