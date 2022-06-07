@@ -34,6 +34,103 @@ KubeHosting API documentation
 + Request ()
 + Respose 200
 
+## Delete Account [/api/v1/delete]
+### Delete an User [DELETE]
++ Parameters
+    + userID (uuid) - ID of the user
++ Request ()
++ Response 200
+
+## Account's information [/api/v1/profile]
+### Save changes to Profile [POST]
+
++ Request (application/json)
+
+        {
+            "username": "username",
+            "email": "example@example.com",
+            "firstname": "firstname",
+            "lastname": "lastname",
+            "phone": "phone number",
+            "bio": "bio information"
+        }
++ Response 200
+
+        {
+            "msg": "Profile updated successfully."
+        }
++ Response 400
+
+        {
+            "errors": [
+                {
+                    "msg": "Username must be at least 3 characters!"
+                },
+                {
+                    "msg": "Invalid email address!"
+                },
+                {
+                    "msg": "Invalid first name! "
+                },
+                {
+                    "msg": "Invalid last name! "
+                },
+                {
+                    "msg": "Invalid phone number!"
+                },
+                {
+                    "msg": "Invalid bio!"
+                },
+                {
+                    "msg": "That email is already taken."
+                },              
+            ]
+        }
++ Response 500
+
+        {
+            "error": "Error updating profile."
+        }
+
+## User's password [/api/v1/profile/password]
+### Save changes new Password [POST]
+
++ Request (application/json)
+
+        {
+            "oldpassword": "old_supersecret",
+            "newpassword": "new_supersecret",
+            "confirmnewpassword": "new_supersecret"
+        }
++ Response 200
+
+        {
+            "msg": "Password updated successfully."
+        }
++ Response 400
+
+        {
+            "errors": [
+                {
+                    "msg": "Invalid old password!"
+                },
+                {
+                    "msg": "Password must contain at least 8 characters with at least: \n• 1 lowercase character \n• 1 uppercase character \n• 1 digit \n• 1 simbol!"
+                },
+                {
+                    "msg": "New password and confirm new password must match!"
+                },
+                {
+                    "msg": "Old password is incorrect."
+                },   
+            ]
+        }
++ Response 500
+
+        {
+            "error": "Error updating password."
+        }
+
 ## User's services [/api/v1/user/{userID}/services/{serviceID}]
 ### Get user's services [GET]
 + Parameters
