@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: https://kubehosting.apiblueprint.org/
+HOST: https://kubehosting.apiblueprint.org
 
 # kubehosting
 
@@ -98,3 +98,38 @@ KubeHosting API documentation
     + serviceID (uuid) - ID of the service
 + Request ()
 + Response 200
+
+## Create a service using an existing docker image [/api/v1/images/{image}]
+### Get Docker image [GET]
++ Parameters
+    + image (string) - name of the Docker image to fetch
++ Request ()
++ Response 200 (application/json)
+
+        {
+            "name": <name>,
+            "tag": <tag>,
+            "fsLayers": [
+                {
+                    "blobSum": <digest>
+                },
+                ...
+            ],
+            "history": <v1 images>,
+            "signature": <JWS>
+        }
++ Response 400 (application/json)
+
+        {
+            "error": "Invalid Image"
+        }
++ Response 404 (application/json)
+
+        {
+            "error": "Image not found"
+        }
++ Response 500 (application/json)
+
+        {
+            "error": "Error fetching image"
+        }
