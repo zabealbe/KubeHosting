@@ -10,4 +10,4 @@ jobs:
         docker network create minikube
         docker-compose up -d
     - name: Test
-      run: docker-compose exec node npm test
+      run: docker-compose exec -T node npm test
