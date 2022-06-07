@@ -172,8 +172,8 @@ function saveServiceSettings(form) {
         if (valid) {
             const service = {
                 name: form.elements.name.value,
-                replicas: form.elements.replicas.value,
-                port: form.elements.port.value,
+                replicas: form.elements.replicas.valueAsNumber,
+                port: form.elements.port.valueAsNumber,
                 image: form.elements.image.value
             };
 

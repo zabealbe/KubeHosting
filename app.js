@@ -20,6 +20,7 @@ var app          = express();
 mongoose.connect(configDB.url);                // connect to our database
 
 require('./config/passport')(passport);        // pass passport for configuration
+require('./config/plans')(mongoose);           // populate database with plans
 
 // set up our express application
 app.use(morgan('dev'));                        // log every request to the console
@@ -54,7 +55,7 @@ app.use('/', require('./routes/subscription'));
 
 // require to be authenticated for /api routes
 const { checkAuthenticated } = require('./middleware/auth');
-//app.use('/api', checkAuthenticated);
+app.use('/api', checkAuthenticated);
 
 app.use('/api/v1', require('./routes/services'));
 app.use('/api/v1', require('./routes/images'));

@@ -6,7 +6,8 @@ var planSchema = mongoose.Schema({
         type: String,
         required: true,
         min: 1,
-        max: 16
+        max: 16,
+        unique: true
     },
     price: {
         type: Number,

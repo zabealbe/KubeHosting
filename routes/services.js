@@ -44,7 +44,7 @@ router.post(['/users/:userID/services/', '/services/'],
             isLength: {
                 options: { min: 1, max: 16 },
                 errorMessage: 'Service name must be between 1 and 50 characters'
-            }
+            },
         },
         image: {
             in: ['body'],
@@ -60,17 +60,20 @@ router.post(['/users/:userID/services/', '/services/'],
             isInt: true,
             min: 1,
             max: 10,
-            errorMessage: 'Service replicas must be between 1 and 10'
+            errorMessage: 'Service replicas must be between 1 and 10',
+            toInt: true
         },
         port: {
             in: ['body'],
             isInt: true,
             min: 1,
             max: 65535,
-            errorMessage: 'Service port must be between 1 and 65535'
+            errorMessage: 'Service port must be between 1 and 65535',
+            toInt: true
         }
     }),
     (req, res, next) => {
+        console.log(req.body);
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).send({ errors: errors.array() });
@@ -83,15 +86,7 @@ router.post(['/users/:userID/services/', '/services/'],
 // Gets the services created by user
 router.get(['/users/:userID/services/', '/services/'],
     sanitize,
-    function (req, res, next) {
-        User.findById(req.params.userID, (err, user) => {
-            if (user == null || err) {
-                res.status(404).send({'error': 'Unknown User ID'});
-            } else {
-                res.status(200).json(user.services);
-            }
-        });
-    });
+    servicesController.listServices);
 
 // Modifies user's service
 router.put(['/users/:userID/services/:serviceID', '/services/:serviceID'],
@@ -159,7 +154,7 @@ router.delete(['/users/:userID/services/:serviceID', '/services/:serviceID'],
     servicesController.deleteService);
 
 // Starts specific service
-router.post(['/users/:userID/services/:serviceID/start', 'services/:serviceID/start'],
+router.post(['/users/:userID/services/:serviceID/start', '/services/:serviceID/start'],
     sanitize,
     checkSchema({
         serviceID: {

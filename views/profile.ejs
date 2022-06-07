@@ -2,14 +2,49 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Account Settings UI Design</title>
+	<title>Account Settings</title>
 	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="/css/profile.css">
 	<meta name="csrf-token" content="<%= csrfToken %>">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+	<style>
+		.btn-success {
+			background-color: #198754;
+			border-color: #198754;
+		}
+		.btn-primary {
+			background-color: #0d6efd;
+			border-color: #0d6efd;
+		}
+		
+		body {
+			font-family: 'Inter', sans-serif;
+		}
+	</style>
 </head>
 <body>
+	<div class="container min-vh-100" id="hero">
+	<nav class="navbar navbar-light bg-none">
+		<div class="container-fluid">
+		  <a class="navbar-brand" href="/">
+			<img src="images/logo.svg" alt="" height="40" class="d-inline-table-cell align-text-top">
+		  </a>
+		  <div>
+			<a href="/logout" class="btn btn-sm btn-primary mx-1">Logout</a>
+			<a class="btn btn-sm btn-success px-3" href="/dashboard">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hdd-stack" viewBox="0 0 16 16">
+					<path d="M14 10a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1h12zM2 9a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H2z"/>
+					<path d="M5 11.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm-2 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM14 3a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h12zM2 2a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2z"/>
+					<path d="M5 4.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm-2 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+				</svg>
+			</a>
+		  </div>
+		</div>
+	  </nav>
 	<section class="py-5 my-5">
 		<div class="container">
 			<h1 class="mb-5">Account Settings</h1>
@@ -110,7 +145,7 @@
 						</form>
 					</div>
 					<div class="tab-pane fade" id="subscription" role="tabpanel" aria-labelledby="subscription-tab">
-						<h3 class="mb-4">Subscription Settings</h3>
+						<h3 class="mb-4">My Subscription</h3>
 						<div class="row">
 							<div class="card mb-4">
 								<div class="card-body">
@@ -120,10 +155,12 @@
 								</div>
 							</div>
 						</div>
+						<!--
 						<div>
 							<button class="btn btn-primary">Update</button>
 							<button class="btn btn-light">Cancel</button>
 						</div>
+						-->
 					</div>
 					<div class="tab-pane fade" id="delete-account" role="tabpanel" aria-labelledby="delete-account-tab">
 						<h3 class="mb-4">Delete account</h3>
@@ -151,6 +188,7 @@
 			</div>
 		</div>
 	</section>
+	</div>
 
 
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>

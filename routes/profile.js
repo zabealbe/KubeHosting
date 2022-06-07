@@ -32,8 +32,8 @@ router.post('/',
             trim: true,
             isString: true,
             isLength: {
-                options: { min: 3 },
-                errorMessage: 'Username must be at least 3 characters'
+                options: { min: 3, max: 16 },
+                errorMessage: 'Username must be between 3 and 16 characters'
             },
             optional: {
                 checkFalsy: true
@@ -54,8 +54,8 @@ router.post('/',
             trim: true,
             isString: true,
             isLength: {
-                options: { min: 2 },
-                errorMessage: 'First name must be at least 3 characters'
+                options: { min: 2, max: 16 },
+                errorMessage: 'Firstname must be between 2 and 16 characters'
             },
             errorMessage: 'Invalid first name!',
             optional: {
@@ -67,8 +67,8 @@ router.post('/',
             trim: true,
             isString: true,
             isLength: {
-                options: { min: 2 },
-                errorMessage: 'Last name must be at least 3 characters'
+                options: { min: 2, max: 16 },
+                errorMessage: 'Lastname must be between 2 and 16 characters'
             },
             errorMessage: 'Invalid last name!',
             optional: {

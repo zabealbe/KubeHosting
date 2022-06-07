@@ -7,6 +7,7 @@ services:
     restart: always
     environment:
       - SESSION_SECRET=idkrandomlmao
+      - DOMAIN=kubehosting.duckdns.org
       - NODE_ENV=test
     depends_on:
       - mongo
