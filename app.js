@@ -49,6 +49,7 @@ app.use(function(req, res, next) {
 app.use('/', require('./routes/index'));
 app.use('/', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
+app.use('/profile', require('./routes/profile'));
 
 // require to be authenticated for /api routes
 const { checkAuthenticated } = require('./middleware/auth');
