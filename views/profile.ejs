@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Account Settings</title>
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/profile.css">
+	<meta name="csrf-token" content="<%= csrfToken %>">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+	<style>
+		.btn-success {
+			background-color: #198754;
+			border-color: #198754;
+		}
+		.btn-primary {
+			background-color: #0d6efd;
+			border-color: #0d6efd;
+		}
+		
+		body {
+			font-family: 'Inter', sans-serif;
+		}
+	</style>
+</head>
+<body>
+	<div class="container min-vh-100" id="hero">
+	<nav class="navbar navbar-light bg-none">
+		<div class="container-fluid">
+		  <a class="navbar-brand" href="/">
+			<img src="images/logo.svg" alt="" height="40" class="d-inline-table-cell align-text-top">
+		  </a>
+		  <div>
+			<a href="/logout" class="btn btn-sm btn-primary mx-1">Logout</a>
+			<a class="btn btn-sm btn-success px-3" href="/dashboard">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hdd-stack" viewBox="0 0 16 16">
+					<path d="M14 10a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1h12zM2 9a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H2z"/>
+					<path d="M5 11.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm-2 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM14 3a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h12zM2 2a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2z"/>
+					<path d="M5 4.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm-2 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+				</svg>
+			</a>
+		  </div>
+		</div>
+	  </nav>
+	<section class="py-5 my-5">
+		<div class="container">
+			<h1 class="mb-5">Account Settings</h1>
+			<div class="bg-white shadow rounded-lg d-block d-sm-flex">
+				<div class="profile-tab-nav border-right">
+					<div class="p-4">
+						<div class="img-circle text-center mb-3">
+							<i class="fa fa-user fa-5x text-primary"></i>
+						</div>
+						<h4 class="text-center"><%= user.username %></h4>
+						<h5 class="text-center lead text-muted"><%= user.firstname %> <%= user.lastname %></h4>
+					</div>
+					<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+						<a class="nav-link active" id="account-tab" data-toggle="pill" href="#account" role="tab" aria-controls="account" aria-selected="true">
+							<i class="fa fa-id-card-o text-center mr-1"></i> 
+							Personal data
+						</a>
+						<a class="nav-link" id="password-tab" data-toggle="pill" href="#password" role="tab" aria-controls="password" aria-selected="false">
+							<i class="fa fa-key text-center mr-1"></i> 
+							Password
+						</a>
+						<a class="nav-link" id="subscription-tab" data-toggle="pill" href="#subscription" role="tab" aria-controls="subscription" aria-selected="false">
+							<i class="fa fa-credit-card text-center mr-1" ></i> 
+							Subscription
+						</a>
+						<a class="nav-link" id="delete-account-tab" data-toggle="pill" href="#delete-account" role="tab" aria-controls="delete-account" aria-selected="false">
+							<i class="fa fa-trash text-center mr-1" ></i> 
+							Delete account
+						</a>
+					</div>
+				</div>
+				<div class="tab-content p-4 p-md-5" id="v-pills-tabContent">
+					<div class="tab-pane fade show active" id="account" role="tabpanel" aria-labelledby="account-tab">
+						<h3 class="mb-4">Account Settings</h3>
+						<form action="javascript:void(0);" onsubmit="updateSettings(this);" method="POST">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>First Name</label>
+										<input type="text" name="firstname" class="form-control" value="<%= user.firstname %>">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Last Name</label>
+										<input type="text" name="lastname" class="form-control" value="<%= user.lastname %>">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Email</label>
+										<input type="text" name="email" class="form-control" value="<%= user.local.email %>" required>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Username</label>
+										<input type="text" name="username" class="form-control" value="<%= user.username %>">
+									</div>
+								</div>
+							</div>
+							<div>
+								<button type="submit" class="btn btn-primary">Update</button>
+								<button type="reset" class="btn btn-light">Cancel</button>
+							</div>	
+						</form>
+					</div>
+					<div class="tab-pane fade" id="password" role="tabpanel" aria-labelledby="password-tab">
+						<h3 class="mb-4">Password Settings</h3>
+						<form action="javascript:void(0);" onsubmit="updatePassword(this);" method="POST">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Old password</label>
+										<input type="password" name="oldpassword" class="form-control">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>New password</label>
+										<input type="password" name="newpassword" class="form-control">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Confirm new password</label>
+										<input type="password" name="confirmnewpassword" class="form-control">
+									</div>
+								</div>
+							</div>
+							<div>
+								<input type="hidden" name="email" value="<%= user.local.email %>">
+								<button type="submit" class="btn btn-primary">Update</button>
+								<button type="reset" class="btn btn-light">Cancel</button>
+							</div>
+						</form>
+					</div>
+					<div class="tab-pane fade" id="subscription" role="tabpanel" aria-labelledby="subscription-tab">
+						<h3 class="mb-4">My Subscription</h3>
+						<div class="row">
+							<div class="card mb-4">
+								<div class="card-body">
+								<h3 class="card-title"><%= user_plan.name %></h3>
+								<h6 class="card-subtitle mb-2 text-muted">Slots: <%= user_plan.slots %></h6>
+								<p class="card-text"><%= user_plan.description %></p>
+								</div>
+							</div>
+						</div>
+						<!--
+						<div>
+							<button class="btn btn-primary">Update</button>
+							<button class="btn btn-light">Cancel</button>
+						</div>
+						-->
+					</div>
+					<div class="tab-pane fade" id="delete-account" role="tabpanel" aria-labelledby="delete-account-tab">
+						<h3 class="mb-4">Delete account</h3>
+						<form action="/delete" method="POST">
+							<p>
+								By deleting your account you will lose all of your personal settings and <strong>all your services.</strong>
+								<br>
+								Are you sure you want to proceed?
+							</p>
+							<div class="form-group">
+								<div class="form-check">
+									<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+									<input type="checkbox" value="" required>
+									<label>
+										Yes, delete my account and all of my data.
+									</label>
+								</div>
+							</div>
+							<div>
+								<button class="btn btn-danger" type="submit">Delete</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	</div>
+
+
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+	<script>
+		const csrfToken = document.head.querySelector('meta[name="csrf-token"]').content;
+
+		function reset(form) {
+				for (let element of form.elements) {
+					element.setCustomValidity('');
+					element.classList.remove('is-invalid');
+				}
+			}
+
+		function updateSettings(form) {
+			const data = Object.fromEntries((new FormData(form)).entries());
+
+			fetch('/profile', { 
+				headers: {'CSRF-Token': csrfToken, 'Content-Type': 'application/json'},
+				method: 'POST',
+				credentials: 'include',
+				body: JSON.stringify(data)
+			})
+				.then(function(data) {
+					data.json().then(function(data) {
+						reset(form);
+
+						const errors = data.errors;
+						if (!errors && data.error)
+							errors = [data.error];
+							
+						if (errors)
+							errors.forEach(function(error) {
+								const param = error.param;
+								const message = error.msg || error.error;
+								const element = form.elements[param];
+
+								element.classList.add('is-invalid');
+								element.setCustomValidity(message);
+								element.reportValidity();
+								element.setCustomValidity('');
+							});
+						else
+							window.location.reload();
+					});
+				})
+				.catch(function(error) {
+					console.log(error);
+				});
+		}
+
+		function updatePassword(form) {
+			const data = Object.fromEntries((new FormData(form)).entries());
+
+			fetch('/profile/password', { 
+				headers: {'CSRF-Token': csrfToken, 'Content-Type': 'application/json'},
+				method: 'POST',
+				credentials: 'include',
+				body: JSON.stringify(data)
+			})
+				.then(function(data) {
+					data.json().then(function(data) {
+						reset(form);
+
+						if (!errors && data.error)
+							errors = [data.error];
+
+						if (errors)
+							errors.forEach(function(error) {
+								const param = error.param;
+								const message = error.msg || error.error;
+								const element = form.elements[param];
+
+								element.classList.add('is-invalid');
+								element.setCustomValidity(message);
+								element.reportValidity();
+								element.setCustomValidity('');
+							});
+						else
+							window.location.reload();
+					});
+				})
+				.catch(function(error) {
+					console.log(error);
+				});
+		}
+	</script>
+</body>
+</html>

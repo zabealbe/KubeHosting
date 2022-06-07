@@ -1,0 +1,13 @@
+name: kubehosting-CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the stack
+      run: |
+        docker network create minikube
+        docker-compose up -d
+    - name: Test
+      run: docker-compose exec -T node npm test

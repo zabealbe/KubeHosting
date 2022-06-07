@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const bcrypt   = require('bcrypt-nodejs');
 const kubernetesController = require('../controllers/kubernetes');
 
+const Plan = require('../models/plan');
+
 // define schema for purchased plan
 var planPurchasedSchema = mongoose.Schema({
     plan: {
@@ -48,7 +50,6 @@ const serviceSchema = mongoose.Schema({
 
 // define the schema for our user model
 var userSchema = mongoose.Schema({
-
     local : {
         email        : {
             type: String,
@@ -60,23 +61,25 @@ var userSchema = mongoose.Schema({
             required: true
         },
     },
-    services : [                    // array of services of the user
+    services : [                     // array of services of the user
         serviceSchema
     ],
-    plan : planPurchasedSchema,     //plan object of the the plan purchased by the user
+    plan : planPurchasedSchema,      //plan object of the the plan purchased by the user
     is_admin: {
         type: Boolean,
         required: false
     },
-    is_blocked : {                     // an user is blocked when insert wrong password for 3 times in a row
+    is_blocked : {                   // an user is blocked when insert wrong password for 3 times in a row
         type: Boolean,
         default: false
     },
-    start_blocked : Date,           // capture the moment when the user is blocked
-    time_blocked : Number,          // minute unit
-    name : String,                  // not required at registration
-    surname : String,               // not required at registration
-    vat: String,                    // not required at registration ("Partita IVA")
+    start_blocked : Date,            // capture the moment when the user is blocked
+    time_blocked : Number,           // in minutes
+    username: String,                // not required at registration
+    firstname : String,              // not required at registration
+    lastname : String,               // not required at registration
+    phone: String,                   // not required at registration
+    //vat: String,                     // not required at registration ("Partita IVA")
 });
 
 userSchema.virtual('free_slots').get(function() {
@@ -85,6 +88,9 @@ userSchema.virtual('free_slots').get(function() {
     }, 0);
 });
 
+userSchema.methods.getPlan = function() {
+    return Plan.findById(this.plan.plan);
+}
 
 // methods ======================
 // generating a hash
@@ -108,6 +114,15 @@ userSchema.pre('save', function(next) {
     } else {
         next();
     }
+});
+
+userSchema.pre('remove', function(next) {
+    kubernetesController.deleteNamespace(this._id).then(() => {
+        next();
+    }
+    ).catch(err => {
+        next(err);
+    });
 });
 
 
