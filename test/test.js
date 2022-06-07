@@ -26,6 +26,17 @@ describe("Test", () => {
         });
     });
 
+    describe("Dashboard page", () => {
+        it("It accesses to the login page instead of the dashboard", (done) => {
+            chai.request(app)
+                .get("/dashboard")
+                .end((err, response) => {
+                    response.should.have.status(200);
+                done();
+                });    
+        });
+    });
+
     describe("Login page", () => {
         it("It accesses to the login page", (done) => {
             chai.request(app)
@@ -66,7 +77,7 @@ describe("Test", () => {
             const _csrf = extractCsrfToken(get_res)
             const payload = {
                     email: "kev@gmail.com",
-                    password: "kev",
+                    password: "abc",
                     _csrf: _csrf
             };
             const post_res = await agent.post("/signup")
@@ -78,15 +89,36 @@ describe("Test", () => {
         });
     });
 
-    /*describe("Signup flow", () => {
-        it("It fails to create an account", async () => {
+    describe("Signup flow", () => {
+        it("It fails to create an account with email already taken", async () => {
             const get_res = await agent.get("/signup")
                 .send()
             get_res.should.have.status(200);
 
             const _csrf = extractCsrfToken(get_res)
             const payload = {
-                    email: "a",
+                    email: "kev@gmail.com",
+                    password: "abc",
+                    _csrf: _csrf
+            };
+            const post_res = await agent.post("/signup")
+                .send(payload)
+            post_res.should.have.status(409);
+            post_res.should.not.have.cookie('connect.sid');
+
+            return;
+        });
+    });
+
+    describe("Signup flow", () => {
+        it("It fails to create an account with wrong/empty email", async () => {
+            const get_res = await agent.get("/signup")
+                .send()
+            get_res.should.have.status(200);
+
+            const _csrf = extractCsrfToken(get_res)
+            const payload = {
+                    email: "",
                     password: "000",
                     _csrf: _csrf
             };
@@ -97,13 +129,13 @@ describe("Test", () => {
 
             return;
         });
-    });*/
+    });
 
     describe("Logout flow", () => {
-        it("It successfully creates an account and then logouts", async () => {
+        it("It successfully authenticates and then logouts", async () => {
             const user = {
                     email: "kev@gmail.com",
-                    password: "kev"
+                    password: "abc"
             };
             const get_res = await chai.request(app).get("/login").send()
             
@@ -147,7 +179,7 @@ describe("Test", () => {
         it("It successfully authenticates", async () => {
             const user = {
                 email: "kev@gmail.com",
-                password: "kev"
+                password: "abc"
             };
             const get_res = await agent.get("/login").send()
             
@@ -166,7 +198,51 @@ describe("Test", () => {
     });
 
     describe("Login flow", () => {
-        it("It doesn't successfully authenticate", async () => {
+        it("It doesn't authenticate with empty field(s)", async () => {
+            const user = {
+                email: "",
+                password: ""
+            };
+            const get_res = await agent.get("/login").send()
+            
+            get_res.should.have.status(200);
+            const _csrf = extractCsrfToken(get_res)
+
+            const post_res = await agent.post("/login")
+                .set('CSRF-Token', _csrf)
+                .send(user)
+
+            post_res.should.have.status(400);
+            post_res.should.not.have.cookie('connect.sid');
+
+            return;
+        });
+    });
+
+    describe("Login flow", () => {
+        it("It doesn't authenticate with wrong/unregistered email", async () => {
+            const user = {
+                email: "www@hotmail.it",
+                password: "123"
+            };
+            const get_res = await agent.get("/login").send()
+            
+            get_res.should.have.status(200);
+            const _csrf = extractCsrfToken(get_res)
+
+            const post_res = await agent.post("/login")
+                .set('CSRF-Token', _csrf)
+                .send(user)
+
+            post_res.should.have.status(400);
+            post_res.should.not.have.cookie('connect.sid');
+
+            return;
+        });
+    });
+
+    describe("Login flow", () => {
+        it("It doesn't authenticate with wrong password", async () => {
             const user = {
                 email: "kev@gmail.com",
                 password: "123"
