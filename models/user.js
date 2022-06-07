@@ -72,11 +72,13 @@ var userSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
-    start_blocked : Date,           // capture the moment when the user is blocked
-    time_blocked : Number,          // minute unit
-    name : String,                  // not required at registration
-    surname : String,               // not required at registration
-    vat: String,                    // not required at registration ("Partita IVA")
+    start_blocked : Date,            // capture the moment when the user is blocked
+    time_blocked : Number,           // in minutes
+    username: String,                // not required at registration
+    firstname : String,              // not required at registration
+    lastname : String,               // not required at registration
+    phone: String,                   // not required at registration
+    //vat: String,                     // not required at registration ("Partita IVA")
 });
 
 userSchema.virtual('free_slots').get(function() {
@@ -84,7 +86,6 @@ userSchema.virtual('free_slots').get(function() {
         return acc + service.active ? service.config.spec.replicas : 0;
     }, 0);
 });
-
 
 // methods ======================
 // generating a hash
