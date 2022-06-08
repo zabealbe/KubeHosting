@@ -31,6 +31,10 @@ router.post('/',
             in: ['body'],
             trim: true,
             isString: true,
+            matches: {
+                options: /^[a-zA-Z0-9_]+$/,
+                errorMessage: 'Username can only contain letters, numbers and underscores'
+            },
             isLength: {
                 options: { min: 3, max: 16 },
                 errorMessage: 'Username must be between 3 and 16 characters'
@@ -53,6 +57,10 @@ router.post('/',
             in: ['body'],
             trim: true,
             isString: true,
+            matches: {
+                options: /^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,}$/,
+                errorMessage: 'Firstname can only contain letters'
+            },
             isLength: {
                 options: { min: 2, max: 16 },
                 errorMessage: 'Firstname must be between 2 and 16 characters'
@@ -66,6 +74,11 @@ router.post('/',
             in: ['body'],
             trim: true,
             isString: true,
+            isAlphanumeric: true,
+            matches: {
+                options: /^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,}$/,
+                errorMessage: 'Lastname can only contain letters'
+            },
             isLength: {
                 options: { min: 2, max: 16 },
                 errorMessage: 'Lastname must be between 2 and 16 characters'
@@ -144,7 +157,11 @@ router.post('/password',
         },
         newpassword: {
             in: ['body'],
-            isStrongPassword: true,
+            isStrongPassword: {
+                options: {
+                    minSymbols: 0,
+                }
+            },
             errorMessage: 'Password must contain at least 8 characters with at least: \n• 1 lowercase character \n• 1 uppercase character \n• 1 digit \n• 1 simbol',
         },
         confirmnewpassword: {

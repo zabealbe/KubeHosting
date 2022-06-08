@@ -44,7 +44,11 @@ router.post('/signup',
         },
         password: {
             in: ['body'],
-            isStrongPassword: true,
+            isStrongPassword: {
+                options: {
+                    minSymbols: 0,
+                }
+            },
             errorMessage: PSWD_ERROR_MSG
         }
     }),

@@ -3,6 +3,7 @@ var User = require('../models/user');
 const YAML = require('yaml')
 
 const kubernetes = require('./kubernetes');
+const { mongoose } = require('mongoose');
 
 exports.createService =  function(req, res) {
     let owner_id = req.params.userID;
@@ -15,18 +16,18 @@ exports.createService =  function(req, res) {
             if (service) {
                 res.status(400).send({'error': 'Service with the same name already exists'});
             } else {
+                const replicas = req.body.replicas;
                 let service = {
                     name: req.body.name,
                     active: false,
-                    ingress: `${req.body.name}-${req.user.username}.` + process.env.DOMAIN,
-                    replicas: req.body.replicas,
+                    ingress: mongoose.Types.ObjectId().toString() + '.' + process.env.DOMAIN,
+                    replicas: 0,
                     port: req.body.port,
                     image: req.body.image,
                 }
 
-                req.body.replicas = 0; // disable service while creating it
-
                 kubernetes.createService(owner_id, service).then((_) => {
+                    service.replicas = replicas;
                     user.services.push(service);
                     user.save();
 
