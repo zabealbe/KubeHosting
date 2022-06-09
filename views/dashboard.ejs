@@ -179,7 +179,7 @@
                     <label class="col-form-label">Replicas</label>
                   </div>
                   <div class="col-auto">
-                    <input type="number" step="1" name="replicas" class="form-control" value="1" pattern="[0-9]+" required>
+                    <input type="number" step="1" min="1" max="5" name="replicas" class="form-control" value="1" pattern="[0-9]+" required>
                   </div>
                   <div class="col-auto">
                     <span id="passwordHelpInline" class="form-text">
@@ -193,7 +193,7 @@
                     <label class="col-form-label">Port</label>
                   </div>
                   <div class="col-auto">
-                    <input type="number" step="1" max="65535" name="port" class="form-control" placeholder="80" required>
+                    <input type="number" step="1" min="1" max="65535" name="port" class="form-control" placeholder="80" required>
                   </div>
                   <div class="col-auto">
                     <span id="passwordHelpInline" class="form-text">

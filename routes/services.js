@@ -59,8 +59,8 @@ router.post(['/users/:userID/services/', '/services/'],
             in: ['body'],
             isInt: true,
             min: 1,
-            max: 10,
-            errorMessage: 'Service replicas must be between 1 and 10',
+            max: 5,
+            errorMessage: 'Service replicas must be between 1 and 5',
             toInt: true
         },
         port: {
