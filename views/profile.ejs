@@ -34,7 +34,6 @@
 			<img src="images/logo.svg" alt="" height="40" class="d-inline-table-cell align-text-top">
 		  </a>
 		  <div>
-			<a href="/logout" class="btn btn-sm btn-primary mx-1">Logout</a>
 			<a class="btn btn-sm btn-success px-3" href="/dashboard">
 				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hdd-stack" viewBox="0 0 16 16">
 					<path d="M14 10a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1h12zM2 9a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2H2z"/>
@@ -42,6 +41,7 @@
 					<path d="M5 4.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm-2 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
 				</svg>
 			</a>
+			<a href="/logout" class="btn btn-sm btn-primary mx-1">Logout</a>
 		  </div>
 		</div>
 	  </nav>
@@ -52,7 +52,7 @@
 				<div class="profile-tab-nav border-right">
 					<div class="p-4">
 						<div class="img-circle text-center mb-3">
-							<i class="fa fa-user fa-5x text-primary"></i>
+							<i class="fa fa-user-circle fa-5x text-primary"></i>
 						</div>
 						<h4 class="text-center"><%= user.username %></h4>
 						<h5 class="text-center lead text-muted"><%= user.firstname %> <%= user.lastname %></h4>
