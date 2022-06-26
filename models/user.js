@@ -36,13 +36,28 @@ const serviceSchema = mongoose.Schema({
         type: Number,
         required: true
     },
-    port: {             // the ports of the service
+    port: {              // the ports of the service
         type: Number,
         required: true
     },
     image: {             // the image of the service
         type: String,
         required: true
+    },
+    command: {           // the command to run as entrypoint
+        type: String,
+        required: false,
+        default: ''
+    },
+    args: {              // the arguments to pass to the service
+        type: [String],
+        required: false,
+        default: []
+    },
+    env: {               // the environment variables to pass to the service
+        type: Object,
+        required: false,
+        default: {}
     },
     deploy_date: Date,   // date time service activation
     launch_date: Date,   // date time service activation

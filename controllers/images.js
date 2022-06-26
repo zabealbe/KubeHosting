@@ -1,5 +1,3 @@
-const { ImageApi } = require('docker-client');
-
 const regex = /^(?<repository>[\w.\-_]+((?::\d+|)(?=\/[a-z0-9._-]+\/[a-z0-9._-]+))|)(?:\/|)(?<image>[a-z0-9.\-_]+(?:\/[a-z0-9.\-_]+|))(:(?<tag>[\w.\-_]{1,127})|)$/;
 
 async function getToken(realm, service, scope){

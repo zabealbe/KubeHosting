@@ -6,9 +6,9 @@ const kubernetes = require('./kubernetes');
 const { mongoose } = require('mongoose');
 
 exports.createService =  function(req, res) {
-    let owner_id = req.params.userID;
+    let user_id = req.params.userID;
 
-    User.findById(owner_id, (err, user) => {
+    User.findById(user_id, (err, user) => {
         if (!user || err) {
             res.status(404).send({'error': 'User not found'});
         } else {
@@ -24,9 +24,10 @@ exports.createService =  function(req, res) {
                     replicas: 0,
                     port: req.body.port,
                     image: req.body.image,
+                    entrypoint: req.body.entrypoint,
                 }
 
-                kubernetes.createService(owner_id, service).then((_) => {
+                kubernetes.createService(user_id, service).then((_) => {
                     service.replicas = replicas;
                     user.services.push(service);
                     user.save();
@@ -42,9 +43,9 @@ exports.createService =  function(req, res) {
 }
 
 exports.updateService =  function(req, res) {
-    let owner_id = req.params.userID;
+    let user_id = req.params.userID;
 
-    User.findById(owner_id, (err, user) => {
+    User.findById(user_id, (err, user) => {
         if (!user || err) {
             res.status(404).send({'error': 'User not found'});
         } else {
@@ -54,7 +55,7 @@ exports.updateService =  function(req, res) {
             } else {
                 service = Object.assign(service, req.body);
 
-                kubernetes.updateService(owner_id, service).then((_) => {
+                kubernetes.updateService(user_id, service).then((_) => {
                     user.save();
 
                     res.status(200).send(service);
@@ -68,10 +69,10 @@ exports.updateService =  function(req, res) {
 }
 
 exports.startService = function(req, res, next) {
-    let owner_id = req.params.userID;
+    let user_id = req.params.userID;
     let service_id = req.params.serviceID;
     
-    User.findById(owner_id, (err, user) => {
+    User.findById(user_id, (err, user) => {
         if (!user || err) {
             res.status(404).send({'error': 'User not found'});
         } else {
@@ -80,7 +81,7 @@ exports.startService = function(req, res, next) {
             service.active = true;
             
             if (service) {
-                kubernetes.updateService(owner_id, service).then((_) => {                           
+                kubernetes.updateService(user_id, service).then((_) => {                           
                     service.active = true;
                     user.save();
                 
@@ -97,10 +98,10 @@ exports.startService = function(req, res, next) {
 }
 
 exports.stopService = function(req, res, next) {
-    let owner_id = req.params.userID;
+    let user_id = req.params.userID;
     let service_id = req.params.serviceID;
     
-    User.findById(owner_id, (err, user) => {
+    User.findById(user_id, (err, user) => {
         if (!user || err) {
             res.status(404).send({'error': 'User not found'});
         } else {
@@ -109,7 +110,7 @@ exports.stopService = function(req, res, next) {
             service.active = false;
             
             if (service) {
-                kubernetes.updateService(owner_id, service).then((_) => {                           
+                kubernetes.updateService(user_id, service).then((_) => {                           
                     service.active = false;
                     user.save();
                 
@@ -126,17 +127,17 @@ exports.stopService = function(req, res, next) {
 }
 
 exports.deleteService = function(req, res, next) {
-    let owner_id = req.params.userID;
+    let user_id = req.params.userID;
     let service_id = req.params.serviceID;
 
-    User.findById(owner_id, (err, user) => {
+    User.findById(user_id, (err, user) => {
         if (!user || err) {
             res.status(404).send({'error': 'User not found'});
         } else {
             let service = user.services.find(service => service.name == service_id);
 
             if (service) {
-                kubernetes.deleteService(owner_id, service.name).then((_) => {
+                kubernetes.deleteService(user_id, service.name).then((_) => {
                     user.services.splice(user.services.indexOf(service), 1);
                     user.save();
 
@@ -153,9 +154,9 @@ exports.deleteService = function(req, res, next) {
 }
 
 exports.listServices = function(req, res, next) {
-    let owner_id = req.params.userID;
+    let user_id = req.params.userID;
 
-    User.findById(owner_id, (err, user) => {
+    User.findById(user_id, (err, user) => {
         if (err) {
             res.status(404).send({'error': 'User not found'});
         } else {

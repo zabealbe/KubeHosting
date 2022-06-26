@@ -121,10 +121,10 @@ function openServiceSettings(service) {
     form.reset();
 
     if (service) {
-        form.elements.name.value = service.name;
-        form.elements.replicas.value = service.replicas;
-        form.elements.port.value = service.port;
-        form.elements.image.value = service.image;
+        for (const elem of form.elements) {
+            elem.value = service[elem.name];
+            console.log(service)
+        }
     } else {
         const serviceNameInput = document.getElementById('serviceNameInput');
 
@@ -170,12 +170,12 @@ function validateServiceSettings() {
 function saveServiceSettings(form) {
     validateServiceSettings().then(valid => {
         if (valid) {
-            const service = {
-                name: form.elements.name.value,
-                replicas: form.elements.replicas.valueAsNumber,
-                port: form.elements.port.valueAsNumber,
-                image: form.elements.image.value
-            };
+            var service = {}
+            for (const elem of form.elements) {
+                if (elem.name) {
+                    service[elem.name] = elem.value;
+                }
+            }
 
             // check if service already exists
             if (services.find(s => s.name == service.name)) {

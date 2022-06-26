@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 const { checkSchema, validationResult } = require('express-validator');
 
-var User = require('../models/user');
 const servicesController = require('../controllers/services');
 
 const sanitize = [
@@ -33,6 +32,16 @@ const sanitize = [
         }
     }];
 
+function handleErrors(req, res, next) {
+    console.log(req.body);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(400).send({ errors: errors.array() });
+    } else {
+        next();
+    }
+}
+
 // Creates new service for a user
 router.post(['/users/:userID/services/', '/services/'],
     sanitize,
@@ -45,15 +54,6 @@ router.post(['/users/:userID/services/', '/services/'],
                 options: { min: 1, max: 16 },
                 errorMessage: 'Service name must be between 1 and 50 characters'
             },
-        },
-        image: {
-            in: ['body'],
-            isString: true,
-            trim: true,
-            isLength: {
-                options: { min: 1, max: 50 },
-                errorMessage: 'Invalid container image',
-            }
         },
         replicas: {
             in: ['body'],
@@ -70,17 +70,85 @@ router.post(['/users/:userID/services/', '/services/'],
             max: 65535,
             errorMessage: 'Service port must be between 1 and 65535',
             toInt: true
+        },
+        image: {
+            in: ['body'],
+            isString: true,
+            trim: true,
+            isLength: {
+                options: { min: 1, max: 255 },
+            },
+            errorMessage: 'Invalid container image',
+        },
+        command: {
+            in: ['body'],
+            isString: true,
+            optional: true,
+            isLength: {
+                options: {max: 65536},
+                errorMessage: 'The length cannot exceed 65536 characters'
+            },
+            isLength: {
+                options: {min: 1},
+                errorMessage: 'The length cannot be less than 1 character'
+            },
+            customSanitizer: {
+                options: (value) => {
+                    return value.split(' ');
+                }
+            },
+            errorMessage: 'Invalid entrypoint',
+        },
+        args: {
+            in: ['body'],
+            isObject: true,
+            optional: true,
+        },
+        "args.0": {
+            in: ['body'],
+            isString: true,
+            optional: true,
+            isLength: {
+                options: {max: 256},
+                errorMessage: 'The length cannot exceed 65536 characters'
+            },
+            isLength: {
+                options: {min: 1},
+                errorMessage: 'The length cannot be less than 1 character'
+            },
+            errorMessage: 'Invalid argument',
+        },
+        "args.1": {
+            in: ['body'],
+            isString: true,
+            optional: true,
+            isLength: {
+                options: {max: 65536},
+                errorMessage: 'The length cannot exceed 65536 characters'
+            },
+            isLength: {
+                options: {min: 1},
+                errorMessage: 'The length cannot be less than 1 character'
+            },
+            errorMessage: 'Invalid argument',
+        },
+        env: {
+            in: ['body'],
+            isArray: true,
+            optional: true
         }
     }),
+    handleErrors,    
     (req, res, next) => {
-        console.log(req.body);
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            res.status(400).send({ errors: errors.array() });
-        } else {
-            next();
+        if (!req.body.entrypoint) {
+            req.body.entrypoint = []
         }
-    },            
+
+        req.body.command = req.body.entrypoint[0];
+        req.body.args = req.body.entrypoint.slice(1);
+
+        next();
+    },     
     servicesController.createService);
 
 // Gets the services created by user
@@ -127,14 +195,7 @@ router.put(['/users/:userID/services/:serviceID', '/services/:serviceID'],
             errorMessage: 'Service port must be between 1 and 65535'
         }
     }),
-    (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            res.status(400).send({ errors: errors.array() });
-        } else {
-            next();
-        }
-    },
+    handleErrors,
     servicesController.updateService);
 
 // Deletes user's service
@@ -151,6 +212,7 @@ router.delete(['/users/:userID/services/:serviceID', '/services/:serviceID'],
             }
         }
     }),
+    handleErrors,
     servicesController.deleteService);
 
 // Starts specific service
@@ -167,6 +229,7 @@ router.post(['/users/:userID/services/:serviceID/start', '/services/:serviceID/s
             }
         }
     }),
+    handleErrors,
     servicesController.startService);
 
 // Stops a specific service
@@ -183,6 +246,7 @@ router.post(['/users/:userID/services/:serviceID/stop', '/services/:serviceID/st
             }
         }
     }),
+    handleErrors,
     servicesController.stopService);
 
 module.exports = router
