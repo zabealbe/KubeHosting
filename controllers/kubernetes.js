@@ -195,6 +195,8 @@ exports.createService = function(namespace, service) {
     let sv_config = createServiceConfig(service);
     let ig_config = createIngressConfig(service);
 
+    console.log(JSON.stringify(rc_config, null, 2));
+
     let rc_promise = k8sApi_core.createNamespacedReplicationController(namespace, rc_config);
     let sv_promise = k8sApi_core.createNamespacedService(namespace, sv_config);
     let ig_promise = k8sApi_network.createNamespacedIngress(namespace, ig_config);
