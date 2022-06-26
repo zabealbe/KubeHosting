@@ -24,7 +24,9 @@ exports.createService =  function(req, res) {
                     replicas: 0,
                     port: req.body.port,
                     image: req.body.image,
-                    entrypoint: req.body.entrypoint,
+                    command: req.body.command,
+                    args: req.body.args,
+                    env: req.body.env,
                 }
 
                 kubernetes.createService(user_id, service).then((_) => {
