@@ -49,11 +49,11 @@ const serviceSchema = mongoose.Schema({
         required: false,
         default: ''
     },
-    args: {              // the arguments to pass to the service
-        type: [String],
+    args: [{              // the arguments to pass to the service
+        type: String,
         required: false,
         default: []
-    },
+    }],
     env: {               // the environment variables to pass to the service
         type: Object,
         required: false,

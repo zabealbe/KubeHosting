@@ -107,7 +107,7 @@ function createReplicationControllerConfig(config) {
     };
 
     if (config.command) {
-        rc_config.spec.template.spec.containers[0].command = config.command;
+        rc_config.spec.template.spec.containers[0].command = [config.command];
     }
     if (config.args) { 
         rc_config.spec.template.spec.containers[0].args = config.args;

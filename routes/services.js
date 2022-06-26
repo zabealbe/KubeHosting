@@ -83,7 +83,11 @@ router.post(['/users/:userID/services/', '/services/'],
         command: {
             in: ['body'],
             isString: true,
-            optional: true,
+            optional: {
+                options: {
+                    checkFalsy: true
+                }
+            },
             isLength: {
                 options: {max: 65536},
                 errorMessage: 'The length cannot exceed 65536 characters'
@@ -91,64 +95,34 @@ router.post(['/users/:userID/services/', '/services/'],
             isLength: {
                 options: {min: 1},
                 errorMessage: 'The length cannot be less than 1 character'
+            },
+            errorMessage: 'Invalid entrypoint',
+        },
+        args: {
+            in: ['body'],
+            isString: true,
+            optional: {
+                options: {
+                    checkFalsy: true
+                }
             },
             customSanitizer: {
                 options: (value) => {
                     return value.split(' ');
                 }
             },
-            errorMessage: 'Invalid entrypoint',
-        },
-        args: {
-            in: ['body'],
-            isObject: true,
-            optional: true,
-        },
-        "args.0": {
-            in: ['body'],
-            isString: true,
-            optional: true,
-            isLength: {
-                options: {max: 256},
-                errorMessage: 'The length cannot exceed 65536 characters'
-            },
-            isLength: {
-                options: {min: 1},
-                errorMessage: 'The length cannot be less than 1 character'
-            },
-            errorMessage: 'Invalid argument',
-        },
-        "args.1": {
-            in: ['body'],
-            isString: true,
-            optional: true,
-            isLength: {
-                options: {max: 65536},
-                errorMessage: 'The length cannot exceed 65536 characters'
-            },
-            isLength: {
-                options: {min: 1},
-                errorMessage: 'The length cannot be less than 1 character'
-            },
-            errorMessage: 'Invalid argument',
         },
         env: {
             in: ['body'],
-            isArray: true,
-            optional: true
+            isObject: true,
+            optional: {
+                options: {
+                    checkFalsy: true
+                }
+            }
         }
     }),
-    handleErrors,    
-    (req, res, next) => {
-        if (!req.body.entrypoint) {
-            req.body.entrypoint = []
-        }
-
-        req.body.command = req.body.entrypoint[0];
-        req.body.args = req.body.entrypoint.slice(1);
-
-        next();
-    },     
+    handleErrors, 
     servicesController.createService);
 
 // Gets the services created by user
@@ -248,5 +222,6 @@ router.post(['/users/:userID/services/:serviceID/stop', '/services/:serviceID/st
     }),
     handleErrors,
     servicesController.stopService);
+
 
 module.exports = router

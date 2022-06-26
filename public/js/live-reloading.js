@@ -122,8 +122,9 @@ function openServiceSettings(service) {
 
     if (service) {
         for (const elem of form.elements) {
-            elem.value = service[elem.name];
-            console.log(service)
+            if (elem.name) {
+                elem.value = service[elem.name];
+            }
         }
     } else {
         const serviceNameInput = document.getElementById('serviceNameInput');
