@@ -32,9 +32,13 @@ exports.createService =  function(req, res) {
                 kubernetes.createService(user_id, service).then((_) => {
                     service.replicas = replicas;
                     user.services.push(service);
-                    user.save();
 
-                    res.status(200).send(user.services[user.services.length - 1]);
+                    user.save().then((_) => {
+                        res.status(200).send(service);
+                    }).catch((err) => {
+                        console.log(err);
+                        res.status(500).send({'error': 'Error creating service'});
+                    });
                 }).catch((err) => {
                     console.log(err);
                     res.status(500).send({'error': 'Error creating service'});

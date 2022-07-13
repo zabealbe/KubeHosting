@@ -121,9 +121,15 @@ userSchema.methods.validPassword = function(password) {
 // add callback when user is created
 userSchema.pre('save', function(next) {
     if (this.isNew) {
-        kubernetesController.createNamespace(this._id).then(() => {
-            next();
+        this.getPlan().then(plan => {
+            kubernetesController.createNamespace(this._id, plan.resources.cpu, plan.resources.ram).then(() => {
+                next();
+            }).catch(err => {
+                next(err);
+            });
         }).catch(err => {
+            console.log(err);
+
             next(err);
         });
     } else {
@@ -131,15 +137,35 @@ userSchema.pre('save', function(next) {
     }
 });
 
-userSchema.pre('remove', function(next) {
-    kubernetesController.deleteNamespace(this._id).then(() => {
+userSchema.pre('findOneAndDelete', function(next) {
+    let user_id = this._conditions._id;
+
+    kubernetesController.deleteNamespace(user_id).then(() => {
         next();
-    }
-    ).catch(err => {
+    }).catch(err => {
+        console.log(err);
+
         next(err);
     });
 });
 
+userSchema.pre('save', function(next) {
+    if (this.isNew || this.isModified('plan.plan')) {
+        this.getPlan().then(plan => {
+            kubernetesController.updateResourceQuota(this._id, plan.resources).then(() => {
+                next();
+            }).catch(err => {
+                next(err);
+            });
+        }).catch(err => {
+            console.log(err);
+
+            next(err);
+        });
+    } else {
+        next();
+    }
+});
 
 // create the model for users and expose it to our app
 module.exports = mongoose.model('User', userSchema);

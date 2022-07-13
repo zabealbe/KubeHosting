@@ -1,67 +1,28 @@
 const k8s = require('@kubernetes/client-node');
 
 if (process.env.NODE_ENV === 'test')  {
-    k8sApi_network = {
-        createNamespacedIngress: function(namespace, ingress) {
-            return new Promise(function(resolve, reject) {
-                resolve(ingress);
-            });
-        },
-        
-        replaceNamespacedIngress: function(name, namespace, ig_config) {
-            return new Promise(function(resolve, reject) {
-                resolve(ig_config);
-            });
-        },
-
-        deleteNamespacedIngress: function(name, namespace) {
-            return new Promise(function(resolve, reject) {
-                resolve();
-            });
+    k8sApi_network = new Proxy({}, {
+        get: function(target, name) {
+            return () => {
+                return new Promise(function(resolve, reject) {
+                    resolve(undefined);
+                });
+            }
         }
-    }
-
-    k8sApi_core = {
-        createNamespace: function(namespace) {
-            return new Promise(function(resolve, reject) {
-                resolve(namespace);
-            });
-        },
-
-        createNamespacedReplicationController: function(name, namespace, rc_config) {
-            return new Promise(function(resolve, reject) {
-                resolve(rc_config);
-            });
-        },
-        createNamespacedService: function(namespace, sv_config) {
-            return new Promise(function(resolve, reject) {
-                resolve(sv_config);
-            });
-        },
-
-        replaceNamespacedReplicationController: function(name, namespace, rc_config) {
-            return new Promise(function(resolve, reject) {
-                resolve(rc_config);
-            });
-        },
-        replaceNamespacedService: function(name, namespace, sv_config) {
-            return new Promise(function(resolve, reject) {
-                resolve(sv_config);
-            });
-        },
+    });
 
 
-        deleteNamespacedReplicationController: function(name, namespace) {
-            return new Promise(function(resolve, reject) {
-                resolve();
-            });
-        },
-        deleteNamespacedService: function(name, namespace) {
-            return new Promise(function(resolve, reject) {
-                resolve();
-            });
-        },
-    }
+    k8sApi_core = new Proxy({}, {
+        get: function(target, name) {
+                return () => {
+                    return new Promise(function(resolve, reject) {
+                        resolve(undefined);
+                    });
+                }
+            }
+        });
+
+    console.log(k8sApi_core.ciao(2))
 
 } else {
     const kc = new k8s.KubeConfig();
@@ -71,32 +32,32 @@ if (process.env.NODE_ENV === 'test')  {
 }
 
 
-function createReplicationControllerConfig(config) {
+function createReplicationControllerConfig(params) {
     let rc_config = {
         apiVersion: 'v1',
         kind: 'ReplicationController',
         metadata: {
-            name: config.name,
+            name: params.name,
         },
         spec: {
-            replicas: config.replicas,
+            replicas: params.replicas,
             selector: {
-                app: config.name,
+                app: params.name,
             },
             template: {
                 metadata: {
                     labels: {
-                        app: config.name,
+                        app: params.name,
                     },
                 },
                 spec: {
                     containers: [
                         {
-                            name: config.name,
-                            image: config.image,
+                            name: params.name,
+                            image: params.image,
                             ports: [
                                 {
-                                    containerPort: config.port,
+                                    containerPort: params.port,
                                 },
                             ],
                         },
@@ -106,26 +67,26 @@ function createReplicationControllerConfig(config) {
         },
     };
 
-    if (config.command) {
-        rc_config.spec.template.spec.containers[0].command = [config.command];
+    if (params.command) {
+        rc_config.spec.template.spec.containers[0].command = [params.command];
     }
-    if (config.args) { 
-        rc_config.spec.template.spec.containers[0].args = config.args;
+    if (params.args) { 
+        rc_config.spec.template.spec.containers[0].args = params.args;
     }
 
     return rc_config;
 }
 
 
-function createServiceConfig(config) {
-    // get all the ports from the config
-    let ports = [config.port]
+function createServiceConfig(params) {
+    // get all the ports from the params
+    let ports = [params.port]
 
     let sv_config = {
         apiVersion: 'v1',
         kind: 'Service',
         metadata: {
-            name: config.name,
+            name: params.name,
         },
         spec: {
             ports: [
@@ -135,7 +96,7 @@ function createServiceConfig(config) {
                 },
             ],
             selector: {
-                app: config.name,
+                app: params.name,
             },
         },
     };
@@ -143,19 +104,19 @@ function createServiceConfig(config) {
     return sv_config
 }
 
-function createIngressConfig(config) {
-    let ports = [config.port]
+function createIngressConfig(params) {
+    let ports = [params.port]
   
     let ig_config = {
         apiVersion: 'networking.k8s.io/v1',
         kind: 'Ingress',
         metadata: {
-            name: config.name,
+            name: params.name,
         },
         spec: {
             rules: [
                 {
-                    host: config.ingress,
+                    host: params.ingress,
                     http: {
                         paths: [
                             {
@@ -163,7 +124,7 @@ function createIngressConfig(config) {
                                 path: '/',
                                 backend: {
                                     service: {
-                                        name: config.name,
+                                        name: params.name,
                                         port: {
                                             number: ports[0],
                                         }
@@ -180,14 +141,111 @@ function createIngressConfig(config) {
     return ig_config
 }
 
-exports.createNamespace =  function(name) {
-    var namespace = {
+function createLimitRangeConfig(params) {
+    let lr_config = {
+        apiVersion: 'v1',
+        kind: 'LimitRange',
+        metadata: {
+            name: params.name,
+        },
+        spec: {
+            limits: [
+                {
+                    type: 'Container',
+                    default: {
+                        cpu: params.cpu,
+                        memory: params.memory,
+                    },
+                    defaultRequest: {
+                        cpu: "20m",
+                        memory: "128Mi",
+                    },
+                },
+            ],
+        },
+    };
+    console.log(JSON.stringify(params, null, 2));
+    console.log(JSON.stringify(lr_config, null, 2));
+
+    return lr_config;
+}
+
+function createResourceQuotaConfig(params) {
+    let rq_config = {
+        apiVersion: 'v1',
+        kind: 'ResourceQuota',
+        metadata: {
+            name: params.name,
+        },
+        spec: {
+            hard: {
+                cpu: params.cpu,
+                memory: params.memory,
+            },
+        },
+    };
+
+    return rq_config;
+}
+
+function createNamespaceConfig(name) {
+    let n_config = {
+        apiVersion: 'v1',
+        kind: 'Namespace',
         metadata: {
             name: name,
         },
     };
 
-    return k8sApi_core.createNamespace(namespace)
+    return n_config;
+}
+
+exports.createNamespace =  function(name, limit_cpu, limit_ram) {
+    const rq_params = {
+        name: name,
+        cpu: limit_cpu,
+        memory: limit_ram,
+    }
+
+    let n_config = createNamespaceConfig(name);
+    let lr_config = createLimitRangeConfig(rq_params);
+    let rq_config = createResourceQuotaConfig(rq_params);
+
+    return k8sApi_core.createNamespace(n_config)
+        .then(function() {
+            let lr_promise = k8sApi_core.createNamespacedLimitRange(name, lr_config);
+            let rq_promise = k8sApi_core.createNamespacedResourceQuota(name, rq_config)
+            
+            let all_promise = Promise.all([lr_promise, rq_promise]);
+            return all_promise.catch(function(err) {
+                console.log(err);
+
+                console.log("Rolling back namespace creation");
+                exports.deleteNamespace(name);
+
+                return Promise.reject(err);
+            });
+        }).catch(function(err) {
+            console.log(err);
+            
+            console.log("Rolling back namespace creation");
+            exports.deleteNamespace(name);
+
+            return Promise.reject(err);
+        });
+}
+
+exports.updateResourceQuota = function(namespace, params) {
+    const rq_name = namespace;
+
+    let rq_config = createResourceQuotaConfig(params);
+    rq_config.metadata.name = rq_name;
+
+    return k8sApi_core.replaceNamespacedResourceQuota(rq_name, namespace, rq_config);
+}
+
+exports.deleteNamespace = function(name) {
+    return k8sApi_core.deleteNamespace(name);
 }
 
 exports.createService = function(namespace, service) {
@@ -201,10 +259,10 @@ exports.createService = function(namespace, service) {
     let sv_promise = k8sApi_core.createNamespacedService(namespace, sv_config);
     let ig_promise = k8sApi_network.createNamespacedIngress(namespace, ig_config);
 
-    let all_proimse =  Promise.all([rc_promise, sv_promise, ig_promise]);
+    let all_promise =  Promise.all([rc_promise, sv_promise, ig_promise]);
 
     // Undo the creation if any of the promises fail
-    return all_proimse.catch(function(err) {
+    return all_promise.catch(function(err) {
         console.log(err);
         
         console.log("Rolling back resources creation");
