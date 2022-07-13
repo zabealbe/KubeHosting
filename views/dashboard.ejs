@@ -28,37 +28,43 @@
       opacity: 1;
     }
 
-    #service-table .pods {
+    #services-table .pods {
       font-family: 'DM Mono', monospace;
     }
 
-    #service-table .form-check-input:checked {
+    #services-table .form-check-input:checked {
       background-color: var(--bs-success);
       border-color: var(--bs-success);
     }
-    #service-table .form-check-input {
+    #services-table .form-check-input {
       transform: scale(1.1);
     }
 
+    .service-extra, .service-extra td {
+      padding: 0;
+    }
+    .service-basic td{
+      border-bottom-width: 0;
+    }
   </style>
 </head>
 
 <body>
   <template id="service-row">
-    <tr>
-      <th scope="row" class="d-none d-sm-table-cell align-middle">
+    <tr class="service-basic">
+      <td role="service-id" scope="row" class="d-none d-sm-table-cell align-middle fw-bold">
           0
-      </th>
-      <td>
+      </td>
+      <td role="service-name">
           service name
       </td>
-      <td class="d-none d-lg-table-cell align-middle">
+      <td role="service-uri" class="d-none d-lg-table-cell align-middle">
           <a href=""></a>
       </td>
-      <td>
+      <td role="service-replicas">
           <span class="me-2 pods">0 / 0</span>
       </td>
-      <td>
+      <td role="service-settings">
         <button class="btn btn-sm btn-outline-primary mx-1">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear my-1" viewBox="0 0 16 16">
             <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
@@ -67,14 +73,14 @@
           Edit
         </button>
       </td>
-      <td>
+      <td role="service-activate">
         <div class="d-flex align-items-center my-1">
           <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" onclick="">
+            <input class="form-check-input" type="checkbox">
           </div>
         </div>
       </td>
-      <td style="cursor: pointer;" onclick="">
+      <td role="service-delete" style="cursor: pointer;">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square"
           viewBox="0 0 16 16">
           <path
@@ -85,8 +91,19 @@
           </path>
         </svg>
       </td>
+      <td role="service-toggle-extra">
+        <button type="button" class="btn btn-lg btn-info collapsed" data-bs-toggle="collapse">Simple collapsible</button>
+      </td>
+    </tr>
+    <tr class="service-extra">
+      <td colspan="100%">
+        <div class="collapse">
+          ciao
+        </div>
+      </td>
     </tr>
   </template>
+
   <div class="container min-vh-100" id="hero">
     <nav class="navbar navbar-light bg-none">
       <div class="container-fluid">
@@ -110,7 +127,7 @@
       </h6>
     </div>
     <div class="table-responsive">
-      <table class="table table-hover text-nowrap align-middle" id="service-table">
+      <table class="table table-hover text-nowrap align-middle" id="services-table">
         <thead>
           <tr>
             <th scope="col" class="d-none d-sm-table-cell">#</th>
@@ -122,18 +139,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-              <th scope="row" class="text-muted d-none d-sm-table-cell">
+          <tr class="text-muted">
+              <td scope="row" class="fw-bold d-none d-sm-table-cell">
                   0
-              </th>
-              <td class="text-muted">
+              </rd>
+              <td class="">
                 <div class="input-group input-group-sm">
-                  <form action="javascript:void(0);" onsubmit="openServiceSettings();">
+                  <form action="javascript:void(0);" onsubmit="open_service_settings();">
                     <input id="serviceNameInput" type="text" maxlength="16" class="form-control" placeholder="Service Name" pattern="[0-9a-z][0-9a-z-]+" title="must consist of lowercase alphanumeric characters or '-'" required>
                   </form>
                 </div>
               </td>
-              <td class="text-muted d-none d-lg-table-cell">
+              <td class="d-none d-lg-table-cell">
                 -
               </td>
               <td class="pods">
@@ -149,7 +166,7 @@
                   Edit
                 </button>
               </td>
-              <td class="text-muted">
+              <td>
                 -
               </td>
               <td style="cursor: pointer;" class="text-dark" onclick="openServiceSettings()">
@@ -283,7 +300,7 @@
     });
   </script>
   <script type="application/javascript">
-    setInterval(() => update_service_table(), 10000);
+    //setInterval(() => update_service_table(), 10000);
   </script>
 </body>
 

@@ -1,40 +1,62 @@
-const csrfToken = document.head.querySelector('meta[name="csrf-token"]').content;
+const csrfToken = document.head.querySelector("meta[name='csrf-token']").content;
 const maxPODs = document.head.querySelector("meta[name='user_slots']").content;
 
-const serviceSettings = document.getElementById('serviceSettings');
+const serviceSettings = document.getElementById("serviceSettings");
 const serviceSettingsModal = new bootstrap.Modal(serviceSettings);
 
+const services_table = document.getElementById("services-table");
+
+const service_row_template = document.getElementById("service-row").content;
+
 var services = [];
+var service_expanded = undefined;
 
 function create_service_row(service, row_n) {
-    const new_row = document.getElementById('service-row').content.cloneNode(true).childNodes[1];
+    const service_row = service_row_template.cloneNode(true);
+    
+    const service_id = service_row.querySelector("[role=service-id]");
+    const service_name = service_row.querySelector("[role=service-name]");
+    const service_uri = service_row.querySelector("[role=service-uri]");
+    const service_replicas = service_row.querySelector("[role=service-replicas]");
+    const service_settings = service_row.querySelector("[role=service-settings]");
+    const service_activate = service_row.querySelector("[role=service-activate]");
+    const service_delete = service_row.querySelector("[role=service-delete]");
+    const service_toggle_extra = service_row.querySelector("[role=service-toggle-extra]");
 
-    new_row.children[0].textContent = row_n;
-    new_row.children[1].textContent = service.name;
-    new_row.children[2].children[0].textContent = service.ingress;
-    new_row.children[2].children[0].href = 'http://' + service.ingress;
+    const service_extra = service_row.querySelector(".service-extra");
 
-    new_row.children[3].children[0].textContent = `${service.replicas} / ${service.replicas}`;
+    service_id.textContent = row_n;
+    
+    service_name.textContent = service.name;
 
-    new_row.children[4].children[0].onclick = () => openServiceSettings(service);
+    service_uri.children[0].textContent = service.ingress;
+    service_uri.children[0].href = "http://" + service.ingress;
 
-    new_row.children[5].children[0].children[0].children[0].setAttribute('onclick', `toggle_service(this, '${service.name}')`);
-    new_row.children[6].setAttribute('onclick', `delete_service('${service.name}')`);
+    service_replicas.children[0].textContent = `${service.replicas} / ${service.replicas}`;
 
+    service_settings.children[0].onclick = () => open_service_settings(service);
+
+    service_activate.children[0].children[0].children[0].setAttribute("onclick", `toggle_service(this, "${service.name}")`);
+    service_delete.setAttribute("onclick", `delete_service("${service.name}")`);
+
+    service_row.onclick = () => toggle_service_info(service);
+
+    service_toggle_extra.querySelector("button").setAttribute("data-bs-target", `[data-service-name="${service.name}"] .collapse`);
+
+    service_extra.setAttribute("data-service-name", service.name);
+    service_extra.setAttribute("id", `service-extra-${service.name}`)
 
     if (service.active) {
         // set class to active
-        new_row.className = '';
-        new_row.children[5].children[0].children[0].children[0].checked = true;
+        service_row.className = "";
+        service_activate.children[0].children[0].children[0].checked = true;
     }
 
-    return new_row;
+    return service_row;
 }
 
 async function update_service_table() {
-    const table = document.getElementById('service-table');
-
-    services = await fetch(`/api/v1/services`, { headers: {'CSRF-Token': csrfToken}, method: 'GET', credentials: 'include' })
+    services = await fetch(`/api/v1/services`, { headers: {"CSRF-Token": csrfToken}, method: "GET", credentials: "include" })
         .then(res => {
             if (res.status == 304) {
                 return [];
@@ -43,23 +65,23 @@ async function update_service_table() {
             }
         });
 
-    const last_row = table.rows[table.rows.length - 1].cloneNode(true);
+    const last_row = services_table.rows[services_table.rows.length - 1].cloneNode(true);
     const new_rows = services.map((s, i) => create_service_row(s, i));
 
     last_row.children[0].textContent = new_rows.length;
     new_rows.push(last_row);
     
-    table.children[1].replaceChildren(...Array.from(new_rows));
+    services_table.children[1].replaceChildren(...Array.from(new_rows));
 }
 
 function create_service(service) {
     fetch(`/api/v1/services`, {
         headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'CSRF-Token': csrfToken
+            "Content-Type": "application/json; charset=utf-8",
+            "CSRF-Token": csrfToken
         },
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         body: JSON.stringify(service)
     })
         .then(_ => update_service_table())
@@ -73,11 +95,11 @@ function create_service(service) {
 function update_service(service) {
     fetch(`/api/v1/services/${service.name}`, {
         headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'CSRF-Token': csrfToken
+            "Content-Type": "application/json; charset=utf-8",
+            "CSRF-Token": csrfToken
         },
-        method: 'PUT',
-        credentials: 'include',
+        method: "PUT",
+        credentials: "include",
         body: JSON.stringify(service)
     })
         .then(_ => update_service_table())
@@ -97,26 +119,43 @@ function toggle_service(target, id) {
 }
 
 function start_service(id) {
-    fetch(`/api/v1/services/${id}/start`, { headers: {'CSRF-Token': csrfToken}, method: 'POST', credentials: 'include' })
+    fetch(`/api/v1/services/${id}/start`, { headers: {"CSRF-Token": csrfToken}, method: "POST", credentials: "include" })
         .then(_ => update_service_table())
         .catch(e => console.log(e));
 }
 
 function stop_service(id) {
-    fetch(`/api/v1/services/${id}/stop`, { headers: {'CSRF-Token': csrfToken}, method: 'POST', credentials: 'include' })
+    fetch(`/api/v1/services/${id}/stop`, { headers: {"CSRF-Token": csrfToken}, method: "POST", credentials: "include" })
         .then(_ => update_service_table())
         .catch(e => console.log(e));
 }
 
 function delete_service(id) {
-    fetch(`/api/v1/services/${id}`, { headers: {'CSRF-Token': csrfToken}, method: 'DELETE', credentials: 'include' })
+    fetch(`/api/v1/services/${id}`, { headers: {"CSRF-Token": csrfToken}, method: "DELETE", credentials: "include" })
         .then(_ => update_service_table())
         .catch(e => console.log(e));
 }
 
-update_service_table();
+function toggle_service_info(service) {
+    if (!service) {
+        return;
+    }
 
-function openServiceSettings(service) {
+    service_row_extra = row.querySelector(".service-row-extra[data-service-name='" + service.name + "']");
+
+    if (!service_row_extra) {
+        return;
+    }
+
+    if (service_expanded == service.name) {
+
+    }
+    if (service_expanded != service.name) {
+
+    }
+}
+
+function open_service_settings(service) {
     const form = serviceSettings.getElementsByTagName("form")[0];
     form.reset();
 
@@ -127,7 +166,7 @@ function openServiceSettings(service) {
             }
         }
     } else {
-        const serviceNameInput = document.getElementById('serviceNameInput');
+        const serviceNameInput = document.getElementById("serviceNameInput");
 
         if (!serviceNameInput.checkValidity()) {
             serviceNameInput.reportValidity();
@@ -154,7 +193,7 @@ function validateServiceSettings() {
     const form = serviceSettings.getElementsByTagName("form")[0];
     const image = form.elements.image.value;
 
-    return fetch("/api/v1/images/" + image, { headers: {'CSRF-Token': csrfToken}, method: 'GET', credentials: 'include' })
+    return fetch("/api/v1/images/" + image, { headers: {"CSRF-Token": csrfToken}, method: "GET", credentials: "include" })
         .then(res => {
             if (res.status == 200) {
                 return true;
@@ -187,3 +226,5 @@ function saveServiceSettings(form) {
         }
     });
 }
+
+update_service_table();
