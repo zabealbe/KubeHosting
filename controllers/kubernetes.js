@@ -21,9 +21,6 @@ if (process.env.NODE_ENV === 'test')  {
                 }
             }
         });
-
-    console.log(k8sApi_core.ciao(2))
-
 } else {
     const kc = new k8s.KubeConfig();
     kc.loadFromFile('./config/kube/config.yml');
@@ -157,15 +154,13 @@ function createLimitRangeConfig(params) {
                         memory: params.memory,
                     },
                     defaultRequest: {
-                        cpu: "20m",
-                        memory: "128Mi",
+                        cpu: params.cpu,
+                        memory: params.memory,
                     },
                 },
             ],
         },
     };
-    console.log(JSON.stringify(params, null, 2));
-    console.log(JSON.stringify(lr_config, null, 2));
 
     return lr_config;
 }
