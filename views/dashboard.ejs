@@ -12,6 +12,7 @@
   <title>Dashboard</title>
 
   <link rel="stylesheet" href="/css/main.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
@@ -126,6 +127,130 @@
         <span class="badge bg-primary">Dashboard</span>
       </h6>
     </div>
+
+    <div class="d-flex justify-content-evenly">
+      <div class="chart-container" style="height:350px; width:300px">
+        <canvas id="myChart0" width="400" height="400"></canvas>
+      </div>
+      <div class="chart-container" style="height:350px; width:300px">
+        <canvas id="myChart1" width="400" height="400"></canvas>
+      </div>
+      <div class="chart-container" style="height:350px; width:300px">
+        <canvas id="myChart2" width="400" height="400"></canvas>
+      </div>
+
+      <script>
+        const ctx0 = document.getElementById('myChart0').getContext('2d');
+        const myChart0 = new Chart(ctx0, {
+          type: 'doughnut',
+          data: {
+            labels: [
+              'used',
+              'not in use'
+            ],
+            datasets: [{
+              label: 'My First Dataset',
+              data: [200, 30],
+              backgroundColor: [
+                'rgb(13, 110, 253)',
+                'rgb(215, 215, 215)'
+              ],
+              hoverOffset: 4
+            }]
+          },
+          options: { 
+            cutout: 85,
+            layout: {
+                padding: {
+                    top: 20
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'CPU usage'
+                },
+                legend: {
+                  position: 'bottom'
+                }
+            }
+          }
+        });
+        const ctx1 = document.getElementById('myChart1').getContext('2d');
+        const myChart1 = new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+              labels: [
+                'used',
+                'not in use'
+              ],
+              datasets: [{
+                label: 'My First Dataset',
+                data: [20, 150],
+                backgroundColor: [
+                  'rgb(13, 110, 253)',
+                  'rgb(215, 215, 215)'
+                ],
+                hoverOffset: 4
+              }]
+            },
+            options: { 
+              cutout: 85,
+              layout: {
+                  padding: {
+                      top: 20
+                  }
+              },
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'DISK usage'
+                  },
+                  legend: {
+                    position: 'bottom'
+                  }
+              }
+            }
+        });
+        const ctx2 = document.getElementById('myChart2').getContext('2d');
+        const myChart2 = new Chart(ctx2, {
+          type: 'doughnut',
+          data: {
+            labels: [
+              'used',
+              'not in use'
+            ],
+            datasets: [{
+              label: 'My First Dataset',
+              data: [20, 30],
+              backgroundColor: [
+                'rgb(13, 110, 253)',
+                'rgb(215, 215, 215)'
+              ],
+              hoverOffset: 4
+            }]
+          },
+          options: { 
+            cutout: 85,
+            layout: {
+                padding: {
+                    top: 20
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'RAM usage'
+                },
+                legend: {
+                  position: 'bottom'
+                }
+            }
+          }
+        });
+      </script>
+    </div>
+
     <div class="table-responsive">
       <table class="table table-hover text-nowrap align-middle" id="services-table">
         <thead>
