@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "if [ $NODE_ENV == 'production' ]; then node ./bin/www; else nodemon ./bin/www; fi",
     "test": "mocha --exit"
   },
   "dependencies": {
@@ -30,7 +30,7 @@
     "yaml": "^2.1.1",
     "express-validator": "^6.14.1",
     "should": "^13.2.3",
-    "docker-client": "^1.38.1"
+    "prometheus-query": "^3.2.3"
   },
   "devDependencies": {
     "chai": "^4.3.6",

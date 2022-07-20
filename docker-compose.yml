@@ -9,6 +9,8 @@ services:
       - SESSION_SECRET=idkrandomlmao
       - DOMAIN=kubehosting.duckdns.org
       - NODE_ENV=test
+    env_file:
+      - local.env
     depends_on:
       - mongo
     entrypoint:

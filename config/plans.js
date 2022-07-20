@@ -4,22 +4,34 @@ var plans = [
         name: 'Free',
         price: 0,
         duration: 30,
-        slots: 4,
-        description: 'Free plan for 30 days with 4 slots'
+        resources: {
+            slots: 4,
+            cpu: '200m',
+            ram: '800Mi',
+        },
+        description: 'Free plan for 30 days with 1 slot'
     },
     {
         name: 'Basic',
         price: 10,
         duration: 30,
-        slots: 8,
-        description: 'Basic plan for 30 days with 8 slots'
+        resources: {
+            slots: 8,
+            cpu: '1000m',
+            ram: '4000Gi',
+        },
+        description: 'Basic plan for 30 days with 5 slots'
     },
     {
         name: 'Pro',
         price: 20,
         duration: 30,
-        slots: 12,
-        description: 'Pro plan for 30 days with 12 slots'
+        resources: {
+            slots: 12,
+            cpu: '2000m',
+            ram: '8Gi',
+        },
+        description: 'Pro plan for 30 days with 1 slots'
     }];
 
 module.exports = function(mongoose) {
@@ -32,13 +44,7 @@ module.exports = function(mongoose) {
         } else {
             if (_plans.length === 0) {
                 plans.forEach(function(plan) {
-                    var newPlan = new Plan({
-                        name: plan.name,
-                        price: plan.price,
-                        duration: plan.duration,
-                        slots: plan.slots,
-                        description: plan.description
-                    });
+                    var newPlan = new Plan(plan);
                     newPlan.save(function(err) {
                         if (err) {
                             console.log(err);

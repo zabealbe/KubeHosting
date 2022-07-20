@@ -80,9 +80,11 @@ router.get('/logout', function (req, res) {
 router.post('/delete',
     checkAuthenticated,
     function (req, res) {
-        User.findByIdAndRemove(req.user._id, function (err) {
-            if (err) {
-                res.status(404).send({'error': 'Unknown User ID'});
+        User.findByIdAndDelete(req.user._id, function (err, result) {
+            if (!result) {
+                res.status(404).send({ 'error': 'User not found' });
+            } else if (err) {
+                res.status(500).send({'error': 'Error deleting user'});
             } else {
                 res.status(200).redirect('/');
             }

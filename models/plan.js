@@ -17,9 +17,19 @@ var planSchema = mongoose.Schema({
         type: Number,
         required: true
     },
-    slots: {
-        type: Number,
-        required: true
+    resources: {
+        slots: {
+            type: Number,
+            required: true
+        },
+        cpu: {
+            type: String,
+            required: true
+        },
+        ram: {
+            type: String,
+            required: true
+        }
     },
     description: {
         type: String,
