@@ -231,7 +231,7 @@ exports.createNamespace =  function(name, limit_cpu, limit_ram) {
 
 exports.updateResourceQuota = function(namespace, params) {
     let rq_config = createResourceQuotaConfig(params);
-    const rq_name = rq_config.metadata.name = rq_name;
+    const rq_name = rq_config.metadata.name;
 
     return k8sApi_core.replaceNamespacedResourceQuota(rq_name, namespace, rq_config);
 }
