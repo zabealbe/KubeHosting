@@ -93,41 +93,39 @@
         </svg>
       </td>
       <td role="service-toggle-extra">
-        <button type="button" class="btn btn-lg btn-info collapsed" data-bs-toggle="collapse">Simple collapsible</button>
+        <button type="button" class="btn btn-sm btn-outline-dark collapsed mx-1" data-bs-toggle="collapse">See log</button>
       </td>
     </tr>
     <tr class="service-extra">
       <td colspan="100%">
         <div class="collapse">
-          ciao
-        </div>
+          <div class="p-3" style="background-color: rgb(0, 0, 0); font-family: monospace; color: antiquewhite; font-size: smaller;">
+            started service ciao <br/> listening on port 80 ...
+          </div>
       </td>
     </tr>
   </template>
 
-  <div class="container min-vh-100" id="hero">
-    <nav class="navbar navbar-light bg-none">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="/">
-          <img src="images/logo.svg" alt="" height="40" class="d-inline-table-cell align-text-top">
-        </a>
-        <div>
-          <a class="btn btn-sm btn-dark px-3" href="/profile">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-              <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-              <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-            </svg>
-          </a>
-          <a href="/logout" class="btn btn-sm btn-primary mx-1">Logout</a>
-        </div>
-      </div>
-    </nav>
-    <div class="container-fluid">
-      <h6>
-        <span class="badge bg-primary">Dashboard</span>
-      </h6>
-    </div>
 
+  <nav class="navbar navbar-light bg-light mb-5">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <img src="images/logo.svg" alt="" height="40" class="d-inline-table-cell align-text-top">
+      </a>
+      <span class="badge bg-primary mt-2">Dashboard</span>
+      <div class="ms-auto">
+        <a class="btn btn-sm btn-dark px-3" href="/profile">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+          </svg>
+        </a>
+        <a href="/logout" class="btn btn-sm btn-primary mx-1">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" id="hero">
     <div class="d-flex justify-content-evenly">
       <div class="chart-container" style="height:350px; width:300px">
         <canvas id="myChart0" width="400" height="400"></canvas>
