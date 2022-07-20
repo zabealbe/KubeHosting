@@ -150,12 +150,12 @@ function createLimitRangeConfig(params) {
                 {
                     type: 'Container',
                     default: {
-                        cpu: params.cpu,
-                        memory: params.memory,
+                        cpu: params.limit_cpu,
+                        memory: params.limit_ram,
                     },
                     defaultRequest: {
-                        cpu: params.cpu,
-                        memory: params.memory,
+                        cpu: params.limit_cpu,
+                        memory: params.limit_ram,
                     },
                 },
             ],
@@ -174,8 +174,8 @@ function createResourceQuotaConfig(params) {
         },
         spec: {
             hard: {
-                cpu: params.cpu,
-                memory: params.memory,
+                cpu: params.limit_cpu,
+                memory: params.limit_ram,
             },
         },
     };
