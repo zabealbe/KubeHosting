@@ -143,19 +143,19 @@ function createLimitRangeConfig(params) {
         apiVersion: 'v1',
         kind: 'LimitRange',
         metadata: {
-            name: params.name,
+            name: 'limitrange',
         },
         spec: {
             limits: [
                 {
                     type: 'Container',
                     default: {
-                        cpu: params.limit_cpu,
-                        memory: params.limit_ram,
+                        cpu: params.cpu,
+                        memory: params.ram,
                     },
                     defaultRequest: {
-                        cpu: params.limit_cpu,
-                        memory: params.limit_ram,
+                        cpu: params.cpu,
+                        memory: params.ram,
                     },
                 },
             ],
@@ -170,12 +170,12 @@ function createResourceQuotaConfig(params) {
         apiVersion: 'v1',
         kind: 'ResourceQuota',
         metadata: {
-            name: params.name,
+            name: 'resourcequota',
         },
         spec: {
             hard: {
-                cpu: params.limit_cpu,
-                memory: params.limit_ram,
+                cpu: params.cpu,
+                memory: params.ram,
             },
         },
     };
@@ -197,9 +197,8 @@ function createNamespaceConfig(name) {
 
 exports.createNamespace =  function(name, limit_cpu, limit_ram) {
     const rq_params = {
-        name: name,
         cpu: limit_cpu,
-        memory: limit_ram,
+        ram: limit_ram,
     }
 
     let n_config = createNamespaceConfig(name);
@@ -231,10 +230,8 @@ exports.createNamespace =  function(name, limit_cpu, limit_ram) {
 }
 
 exports.updateResourceQuota = function(namespace, params) {
-    const rq_name = namespace;
-
     let rq_config = createResourceQuotaConfig(params);
-    rq_config.metadata.name = rq_name;
+    const rq_name = rq_config.metadata.name = rq_name;
 
     return k8sApi_core.replaceNamespacedResourceQuota(rq_name, namespace, rq_config);
 }
