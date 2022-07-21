@@ -149,11 +149,11 @@ function createLimitRangeConfig(params) {
             limits: [
                 {
                     type: 'Container',
-                    default: {
+                    max: {
                         cpu: params.cpu,
                         memory: params.ram,
                     },
-                    defaultRequest: {
+                    min: {
                         cpu: params.cpu,
                         memory: params.ram,
                     },
