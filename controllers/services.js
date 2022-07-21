@@ -170,3 +170,30 @@ exports.listServices = function(req, res, next) {
         }
     });
 }
+
+exports.getServiceLogs = function(req, res, next) {
+    let user_id = req.params.userID;
+    let service_id = req.params.serviceID;
+
+    User.findById(user_id, (err, user) => {
+        if (!user || err) {
+            res.status(404).send({'error': 'User not found'});
+        } else {
+            let service = user.services.find(service => service.name == service_id);
+
+            if (service) {
+                console.log(user_id, service.name)
+                kubernetes.getServiceLogs(user_id, service.name).then((logs) => {
+                    console.log("CIAO")
+                    console.log(logs)
+                    res.status(200).send(logs);
+                }).catch((err) => {
+                    console.log(err);
+                    res.status(500).send({'error': 'Error getting service logs'});
+                });
+            } else {
+                res.status(404).send({'error': 'Service not found'});
+            }
+        }
+    });
+}

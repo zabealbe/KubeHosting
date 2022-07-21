@@ -26,7 +26,7 @@ const sanitize = [
             res.status(401).send({ errors: errors.array() });
         } else {
             if (req.params.userID == undefined) {
-                req.params.userID = req.user._id;
+                req.params.userID = req.user._id.valueOf();
             }
             next();
         }
@@ -222,6 +222,22 @@ router.post(['/users/:userID/services/:serviceID/stop', '/services/:serviceID/st
     }),
     handleErrors,
     servicesController.stopService);
+
+router.get(['/users/:userID/services/:serviceID/logs', '/services/:serviceID/logs'],
+    sanitize,
+    checkSchema({
+        serviceID: {
+            in: ['params'],
+            isString: true,
+            trim: true,
+            isLength: {
+                options: { min: 1, max: 16 },
+                errorMessage: 'Service name must be between 1 and 50 characters'
+            }
+        }
+    }),
+    handleErrors,
+    servicesController.getServiceLogs);
 
 
 module.exports = router

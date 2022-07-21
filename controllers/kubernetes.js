@@ -1,5 +1,7 @@
 const k8s = require('@kubernetes/client-node');
+const request = require('request');
 
+const kc = new k8s.KubeConfig();
 if (process.env.NODE_ENV === 'test')  {
     k8sApi_network = new Proxy({}, {
         get: function(target, name) {
@@ -22,10 +24,7 @@ if (process.env.NODE_ENV === 'test')  {
             }
         });
 
-    console.log(k8sApi_core.ciao(2))
-
 } else {
-    const kc = new k8s.KubeConfig();
     kc.loadFromFile('./config/kube/config.yml');
     k8sApi_network = kc.makeApiClient(k8s.NetworkingV1Api);
     k8sApi_core = kc.makeApiClient(k8s.CoreV1Api);
@@ -318,4 +317,29 @@ exports.deleteService = function(namespace, service_id) {
     let all_promise = Promise.all([rc_promise, sv_promise, ig_promise]);
 
     return all_promise;
+}
+
+exports.getServiceLogs = function(namespace, service_id) {
+    let opts = {
+        method: 'GET',
+        headers: {
+            "Accept": "application/json",
+        },
+        uri: `${kc.getCurrentCluster().server}/api/v1/namespaces/${namespace}/pods?labelSelector=app%3D${service_id}/log`,
+        json: true,
+    };
+
+    kc.applyToRequest(opts);
+
+    return new Promise(function(resolve, reject){
+        request(opts, function (err, res, body) {
+            console.log(JSON.stringify(res, null, 2));
+            if (err || res.code != 200) return reject(err);
+            try {
+                resolve(JSON.parse(body));
+            } catch(e) {
+                reject(e);
+            }
+        });
+    });
 }
