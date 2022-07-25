@@ -184,8 +184,6 @@ exports.getServiceLogs = function(req, res, next) {
             if (service) {
                 console.log(user_id, service.name)
                 kubernetes.getServiceLogs(user_id, service.name).then((logs) => {
-                    console.log("CIAO")
-                    console.log(logs)
                     res.status(200).send(logs);
                 }).catch((err) => {
                     console.log(err);

@@ -41,10 +41,10 @@
       transform: scale(1.1);
     }
 
-    .service-extra, .service-extra td {
+    .service-logs, .service-logs td {
       padding: 0;
     }
-    .service-basic td{
+    .service td{
       border-bottom-width: 0;
     }
 
@@ -64,7 +64,7 @@
 
 <body>
   <template id="service-row">
-    <tr class="service-basic">
+    <tr class="service">
       <td role="service-id" scope="row" class="d-none d-sm-table-cell align-middle fw-bold">
           0
       </td>
@@ -104,11 +104,11 @@
           </path>
         </svg>
       </td>
-      <td role="service-toggle-extra">
+      <td role="service-toggle-logs">
         <button type="button" class="btn btn-sm btn-outline-dark collapsed mx-1" data-bs-toggle="collapse">See log</button>
       </td>
     </tr>
-    <tr class="service-extra">
+    <tr class="service-logs">
       <td colspan="100%">
         <div class="collapse">
           <div class="p-3" style="background-color: rgb(0, 0, 0); font-family: monospace; color: antiquewhite; font-size: smaller;">
@@ -444,6 +444,7 @@
   </script>
   <script type="application/javascript">
     //setInterval(() => update_service_table(), 10000);
+    setInterval(() => update_service_following_logs(), 1000);
   </script>
 </body>
 

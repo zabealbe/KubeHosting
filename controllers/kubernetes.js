@@ -320,26 +320,20 @@ exports.deleteService = function(namespace, service_id) {
 }
 
 exports.getServiceLogs = function(namespace, service_id) {
-    let opts = {
-        method: 'GET',
-        headers: {
-            "Accept": "application/json",
-        },
-        uri: `${kc.getCurrentCluster().server}/api/v1/namespaces/${namespace}/pods?labelSelector=app%3D${service_id}/log`,
-        json: true,
-    };
-
-    kc.applyToRequest(opts);
-
-    return new Promise(function(resolve, reject){
-        request(opts, function (err, res, body) {
-            console.log(JSON.stringify(res, null, 2));
-            if (err || res.code != 200) return reject(err);
-            try {
-                resolve(JSON.parse(body));
-            } catch(e) {
-                reject(e);
-            }
-        });
+    let promise = new Promise(function(resolve, reject) {
+        k8sApi_core.listNamespacedPod(namespace, undefined, undefined, undefined, undefined, `app=${service_id}`).catch(function(err) {
+            reject(err);
+        }).then(function(res) {
+            let pod_name = res.body.items[0].metadata.name;
+            console.log(pod_name);
+            k8sApi_core.readNamespacedPodLog(pod_name, namespace).catch(function(err) {
+                console.log('Error getting logs for pod ' + pod_name + ' in namespace ' + namespace);
+                reject(err);
+            }).then(function(log) {
+                resolve(log.body || "");
+            });
+        })
     });
+
+    return promise;
 }

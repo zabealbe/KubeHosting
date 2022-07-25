@@ -9,7 +9,7 @@ const services_table = document.getElementById("services-table");
 const service_row_template = document.getElementById("service-row").content;
 
 var services = [];
-var service_expanded = undefined;
+var services_following_logs = [];
 
 function create_service_row(service, row_n) {
     const service_row = service_row_template.cloneNode(true);
@@ -21,9 +21,9 @@ function create_service_row(service, row_n) {
     const service_settings = service_row.querySelector("[role=service-settings]");
     const service_activate = service_row.querySelector("[role=service-activate]");
     const service_delete = service_row.querySelector("[role=service-delete]");
-    const service_toggle_extra = service_row.querySelector("[role=service-toggle-extra]");
+    const service_toggle_logs = service_row.querySelector("[role=service-toggle-logs]");
 
-    const service_extra = service_row.querySelector(".service-extra");
+    const service_logs = service_row.querySelector(".service-logs");
 
     service_id.textContent = row_n;
     
@@ -37,14 +37,14 @@ function create_service_row(service, row_n) {
     service_settings.children[0].onclick = () => open_service_settings(service);
 
     service_activate.children[0].children[0].children[0].setAttribute("onclick", `toggle_service(this, "${service.name}")`);
-    service_delete.setAttribute("onclick", `delete_service("${service.name}")`);
 
-    service_row.onclick = () => toggle_service_info(service);
+    service_delete.onclick = () => delete_service("${service.name}");
 
-    service_toggle_extra.querySelector("button").setAttribute("data-bs-target", `[data-service-name="${service.name}"] .collapse`);
+    service_toggle_logs.onclick = () => toggle_service_logs(service);
+    service_toggle_logs.querySelector("button").setAttribute("data-bs-target", `[data-service-name="${service.name}"] .collapse`);
 
-    service_extra.setAttribute("data-service-name", service.name);
-    service_extra.setAttribute("id", `service-extra-${service.name}`)
+    service_logs.setAttribute("data-service-name", service.name);
+    service_logs.setAttribute("id", `service-logs-${service.name}`)
 
     if (service.active) {
         // set class to active
@@ -109,6 +109,21 @@ function update_service(service) {
         });
 }
 
+function update_service_following_logs() {
+    services_following_logs = services.filter(s => s.active);
+    services_following_logs.forEach(s => update_service_logs(s));
+}
+
+function update_service_logs(service) {
+    fetch(`/api/v1/services/${service.name}/logs`, { headers: {"CSRF-Token": csrfToken}, method: "GET", credentials: "include" })
+        .then(res => res.text())
+        .then(logs => {
+            const service_logs = document.getElementById(`service-logs-${service.name}`);
+            service_logs.children[0].children[0].children[0].textContent = logs;
+        })
+        .catch(e => console.log(e));
+}
+
 function toggle_service(target, id) {
     if (target.checked) {
         start_service(id);
@@ -136,22 +151,13 @@ function delete_service(id) {
         .catch(e => console.log(e));
 }
 
-function toggle_service_info(service) {
-    if (!service) {
-        return;
-    }
-
-    service_row_extra = row.querySelector(".service-row-extra[data-service-name='" + service.name + "']");
-
-    if (!service_row_extra) {
-        return;
-    }
-
-    if (service_expanded == service.name) {
-
-    }
-    if (service_expanded != service.name) {
-
+function toggle_service_logs(service) {
+    const service_logs = document.getElementById(`service-logs-${service.name}`);
+    if (service_logs.className == "collapse") {
+        update_service_logs(service);
+        services_following_logs.push(service.name);
+    } else {
+        services_following_logs.splice(services_following_logs.indexOf(service.name), 1);
     }
 }
 
