@@ -320,20 +320,12 @@ exports.deleteService = function(namespace, service_id) {
 }
 
 exports.getServiceLogs = function(namespace, service_id) {
-    let promise = new Promise(function(resolve, reject) {
-        k8sApi_core.listNamespacedPod(namespace, undefined, undefined, undefined, undefined, `app=${service_id}`).catch(function(err) {
-            reject(err);
-        }).then(function(res) {
-            let pod_name = res.body.items[0].metadata.name;
-            console.log(pod_name);
-            k8sApi_core.readNamespacedPodLog(pod_name, namespace).catch(function(err) {
-                console.log('Error getting logs for pod ' + pod_name + ' in namespace ' + namespace);
-                reject(err);
-            }).then(function(log) {
-                resolve(log.body || "");
-            });
-        })
-    });
+    return k8sApi_core.listNamespacedPod(namespace, undefined, undefined, undefined, undefined, `app=${service_id}`)
+        .then(function(res) {
+            let pod_name = res.body.items[0].metadata.name; // pod name
 
-    return promise;
+            return k8sApi_core.readNamespacedPodLog(pod_name, namespace)})
+        .then(function(res) {
+            return res.body || "";
+        });
 }

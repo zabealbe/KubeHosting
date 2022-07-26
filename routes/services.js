@@ -26,9 +26,19 @@ const sanitize = [
             res.status(401).send({ errors: errors.array() });
         } else {
             if (req.params.userID == undefined) {
-                req.params.userID = req.user._id.valueOf();
+                req.owner = req.user;
+                next();
+            } else {
+                // check if user exists
+                User.findById(req.params.userID, (err, user) => {
+                    if (err || !user) {
+                        res.status(404).send({ error: 'User not found' });
+                    } else {
+                        req.owner = user;
+                        next();
+                    }
+                });
             }
-            next();
         }
     }];
 
