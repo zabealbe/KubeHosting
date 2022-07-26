@@ -7,9 +7,9 @@ var plans = [
         resources: {
             slots: 4,
             cpu: '200m',
-            ram: '500Mi',
+            ram: '800Mi',
         },
-        description: 'Free plan for 30 days with 4 slots'
+        description: 'Free plan for 30 days with 1 slot'
     },
     {
         name: 'Basic',
@@ -17,10 +17,10 @@ var plans = [
         duration: 30,
         resources: {
             slots: 8,
-            cpu: '200m',
-            ram: '500Mi',
+            cpu: '1000m',
+            ram: '4000Gi',
         },
-        description: 'Basic plan for 30 days with 8 slots'
+        description: 'Basic plan for 30 days with 5 slots'
     },
     {
         name: 'Pro',
@@ -28,10 +28,10 @@ var plans = [
         duration: 30,
         resources: {
             slots: 12,
-            cpu: '200m',
-            ram: '500Mi',
+            cpu: '2000m',
+            ram: '8Gi',
         },
-        description: 'Pro plan for 30 days with 12 slots'
+        description: 'Pro plan for 30 days with 1 slots'
     }];
 
 module.exports = function(mongoose) {

@@ -23,7 +23,10 @@ if (process.env.NODE_ENV === 'test')  {
                 }
             }
         });
+<<<<<<< HEAD
 
+=======
+>>>>>>> feat-limits
 } else {
     kc.loadFromFile('./config/kube/config.yml');
     k8sApi_network = kc.makeApiClient(k8s.NetworkingV1Api);
@@ -156,8 +159,8 @@ function createLimitRangeConfig(params) {
                         memory: params.memory,
                     },
                     defaultRequest: {
-                        cpu: "200m",
-                        memory: "128Mi",
+                        cpu: params.cpu,
+                        memory: params.memory,
                     },
                 },
             ],
