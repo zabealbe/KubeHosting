@@ -156,15 +156,13 @@ function createLimitRangeConfig(params) {
                         memory: params.memory,
                     },
                     defaultRequest: {
-                        cpu: "20m",
+                        cpu: "200m",
                         memory: "128Mi",
                     },
                 },
             ],
         },
     };
-    console.log(JSON.stringify(params, null, 2));
-    console.log(JSON.stringify(lr_config, null, 2));
 
     return lr_config;
 }

@@ -233,7 +233,7 @@ router.post(['/users/:userID/services/:serviceID/stop', '/services/:serviceID/st
     handleErrors,
     servicesController.stopService);
 
-router.get(['/users/:userID/services/:serviceID/logs', '/services/:serviceID/logs'],
+    router.get(['/users/:userID/services/:serviceID/logs', '/services/:serviceID/logs'],
     sanitize,
     checkSchema({
         serviceID: {
@@ -248,6 +248,22 @@ router.get(['/users/:userID/services/:serviceID/logs', '/services/:serviceID/log
     }),
     handleErrors,
     servicesController.getServiceLogs);
+
+router.get(['/users/:userID/services/:serviceID/stats', '/services/:serviceID/stats'],
+    sanitize,
+    checkSchema({
+        serviceID: {
+            in: ['params'],
+            isString: true,
+            trim: true,
+            isLength: {
+                options: { min: 1, max: 16 },
+                errorMessage: 'Service name must be between 1 and 50 characters'
+            }
+        }
+    }),
+    handleErrors,
+    servicesController.getServiceStats);
 
 
 module.exports = router

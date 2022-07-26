@@ -7,7 +7,6 @@ services:
     restart: always
     environment:
       - SESSION_SECRET=idkrandomlmao
-      - DOMAIN=kubehosting.duckdns.org
     env_file:
       - local.env
     depends_on:

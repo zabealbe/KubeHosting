@@ -3,6 +3,7 @@ var User = require('../models/user');
 const YAML = require('yaml')
 
 const kubernetes = require('./kubernetes');
+const prometheus = require('./prometheus');
 const { mongoose } = require('mongoose');
 
 exports.createService =  function(req, res) {
@@ -27,9 +28,9 @@ exports.createService =  function(req, res) {
 
         kubernetes.createService(user_id, service).then((_) => {
             service.replicas = replicas;
-            user.services.push(service);
+            req.owner.services.push(service);
 
-            user.save().then((_) => {
+            req.owner.save().then((_) => {
                 res.status(200).send(service);
             }).catch((err) => {
                 console.log(err);
@@ -52,7 +53,7 @@ exports.updateService =  function(req, res) {
         service = Object.assign(service, req.body);
 
         kubernetes.updateService(user_id, service).then((_) => {
-            user.save();
+            req.owner.save();
 
             res.status(200).send(service);
         }).catch((err) => {
@@ -66,14 +67,14 @@ exports.startService = function(req, res, next) {
     let user_id = req.owner._id.valueOf();
     let service_id = req.params.serviceID;
 
-    let service = user.services.find(service => service.name == service_id);
+    let service = req.owner.services.find(service => service.name == service_id);
 
     service.active = true;
     
     if (service) {
         kubernetes.updateService(user_id, service).then((_) => {                           
             service.active = true;
-            user.save();
+            req.owner.save();
         
             res.status(200).send(service);
         }).catch((err) => {
@@ -96,7 +97,7 @@ exports.stopService = function(req, res, next) {
     if (service) {
         kubernetes.updateService(user_id, service).then((_) => {                           
             service.active = false;
-            user.save();
+            req.owner.save();
         
             res.status(200).send(service);
         }).catch((err) => {
@@ -116,8 +117,8 @@ exports.deleteService = function(req, res, next) {
 
     if (service) {
         kubernetes.deleteService(user_id, service.name).then((_) => {
-            user.services.splice(user.services.indexOf(service), 1);
-            user.save();
+            req.owner.services.splice(req.owner.services.indexOf(service), 1);
+            req.owner.save();
 
             res.status(200).send({'message': 'Service deleted'});
         }).catch((err) => {
@@ -160,11 +161,11 @@ exports.getServiceStats = function(req, res, next) {
 
     if (service) {
         console.log(user_id, service.name)
-        kubernetes.getServiceLogs(user_id, service.name).then((logs) => {
-            res.status(200).send(logs);
+        prometheus.getServiceStats(user_id, service.name).then((stats) => {
+            res.status(200).send(stats);
         }).catch((err) => {
             console.log(err);
-            res.status(500).send({'error': 'Error getting service logs'});
+            res.status(500).send({'error': 'Error getting service stats'});
         });
     } else {
         res.status(404).send({'error': 'Service not found'});
