@@ -23,10 +23,6 @@ if (process.env.NODE_ENV === 'test')  {
                 }
             }
         });
-<<<<<<< HEAD
-
-=======
->>>>>>> feat-limits
 } else {
     kc.loadFromFile('./config/kube/config.yml');
     k8sApi_network = kc.makeApiClient(k8s.NetworkingV1Api);

@@ -161,7 +161,7 @@ exports.getServiceStats = function(req, res, next) {
 
     if (service) {
         console.log(user_id, service.name)
-        prometheus.getServiceStats(user_id, service.name).then((stats) => {
+        prometheus.getServiceCpu(user_id, service.name, req.query.start, req.query.end, req.query.step).then((stats) => {
             res.status(200).send(stats);
         }).catch((err) => {
             console.log(err);

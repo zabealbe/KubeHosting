@@ -14,27 +14,31 @@ if (process.env.NODE_ENV === 'test')  {
 } else {
     prom = new PrometheusDriver({
         endpoint: process.env.PROMETHEUS_URL,
-        baseURL: "/api/v1", // default value,
+        baseURL: '/api/v1', // default value,
+        headers: {
+            'Accept-Encoding': 'gzip'
+        },
         responseInterceptor: {
-            onFulfilled: (x) => console.log(x),
-            onRejected: (x) => console.log(x)
+            onFulfilled: (cfg) => ({
+                ...cfg,
+                responseType: 'json',
+                decompress: false
+              }),
+            onRejected: (x) => console.log(`${x}`)
         }
     });
 }
 
 
 
-exports.getServiceStats = function(namespace, service_id) {
-    console.log(process.env.PROMETHEUS_URL);
-    const q = `max(rate(container_cpu_usage_seconds_total{container='${service_id}', namespace='${namespace}'}[1m]))`;
-    return prom.instantQuery(q)
+exports.getServiceCpu = function(namespace, service_id, start, end, step) {
+    let q = ''
+    q += `sum(rate(container_cpu_usage_seconds_total{container!='POD',pod=~'diocancaro.*',namespace!='kube-system',namespace!='default',namespace!='ingress-nginx'}[1m]))`
+    q += `/ on() kube_pod_container_resource_limits{resource='cpu', pod=~'diocancaro.*'}`
+    
+    return prom.rangeQuery(q, start, end, step)
         .then((res) => {
-            const series = res.result;
-            series.forEach((serie) => {
-                console.log("Serie:", serie.metric.toString());
-                console.log("Time:", serie.value.time);
-                console.log("Value:", serie.value.value);
-            });
+            return Array.from(res.result.values())
         })
         .catch(console.error);
 }

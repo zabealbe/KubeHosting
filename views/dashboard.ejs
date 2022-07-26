@@ -12,7 +12,11 @@
   <title>Dashboard</title>
 
   <link rel="stylesheet" href="/css/main.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datasource-prometheus/dist/chartjs-plugin-datasource-prometheus.umd.min.js"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
@@ -156,6 +160,7 @@
       </div>
 
       <script>
+        /*
         const ctx0 = document.getElementById('myChart0').getContext('2d');
         const myChart0 = new Chart(ctx0, {
           type: 'doughnut',
@@ -193,6 +198,7 @@
             }
           }
         });
+        */
         const ctx1 = document.getElementById('myChart1').getContext('2d');
         const myChart1 = new Chart(ctx1, {
             type: 'doughnut',
@@ -266,6 +272,28 @@
             }
           }
         });
+
+        (function(){
+          const ctx = document.getElementById('myChart0').getContext('2d');
+          new Chart(ctx, {
+            type: 'line',
+            plugins: [ChartDatasourcePrometheusPlugin],
+            options: {
+              prometheus: {
+                endpoint: "https://prometheus.kubehosting.duckdns.org",//"<%= process.env.PROMETHEUS_ENDPOINT %>",
+                baseURL: "/api/v1",   // default value
+              },
+              query: 'sum(rate(container_cpu_usage_seconds_total{container!="POD",pod="diocancaro-2rcbc",namespace!="kube-system",namespace!="default",namespace!="ingress-nginx"}[5m])) / on() kube_pod_container_resource_limits{resource="cpu", pod="diocancaro-2rcbc"}',
+              timeRange: {
+                type: 'relative',
+
+                // from 12 hours ago to now
+                start: -12 * 60 * 60 * 1000,
+                end: 0,
+              },
+            },
+          });
+        })();
       </script>
     </div>
 

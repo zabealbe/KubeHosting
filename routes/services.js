@@ -260,9 +260,38 @@ router.get(['/users/:userID/services/:serviceID/stats', '/services/:serviceID/st
                 options: { min: 1, max: 16 },
                 errorMessage: 'Service name must be between 1 and 50 characters'
             }
+        },
+        start: {
+            in: ['query'],
+            isInt: true,
+            optional: true,
+            min: 1,
+            errorMessage: 'Start time must be valid Unix timestamp greater than 0'
+        },
+        end: {
+            in: ['query'],
+            isInt: true,
+            optional: true,
+            min: 1,
+            errorMessage: 'End time must be valid Unix timestamp greater than 0'
         }
+
     }),
     handleErrors,
+    (req, res, next) => {
+        if (!req.query.start) req.query.start = Date.now() - (24 * 60 * 60 * 1000);
+        if (!req.query.end) req.query.end = Date.now();
+
+        req.query.step = (req.query.end - req.query.start) / 1000 + 'ms';
+
+        if (req.query.start > req.query.end) {
+            res.status(400).json({
+                error: 'Start time must be before end time'
+            });
+        } else {
+            next();
+        }
+    },
     servicesController.getServiceStats);
 
 
