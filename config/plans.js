@@ -4,10 +4,10 @@ var plans = [
         name: 'Free',
         price: 0,
         duration: 30,
-        resources: {
+        limits: {
             slots: 4,
-            cpu: '200m',
-            ram: '800Mi',
+            cpu: '0.2',
+            mem: '800',
         },
         description: 'Free plan for 30 days with 1 slot'
     },
@@ -15,10 +15,10 @@ var plans = [
         name: 'Basic',
         price: 10,
         duration: 30,
-        resources: {
+        limits: {
             slots: 8,
-            cpu: '1000m',
-            ram: '4000Gi',
+            cpu: '1',
+            mem: '4000',
         },
         description: 'Basic plan for 30 days with 5 slots'
     },
@@ -26,10 +26,10 @@ var plans = [
         name: 'Pro',
         price: 20,
         duration: 30,
-        resources: {
+        limits: {
             slots: 12,
-            cpu: '2000m',
-            ram: '8Gi',
+            cpu: '2',
+            mem: '8000',
         },
         description: 'Pro plan for 30 days with 1 slots'
     }];

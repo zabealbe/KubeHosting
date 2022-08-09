@@ -149,9 +149,11 @@
 						<div class="row">
 							<div class="card mb-4">
 								<div class="card-body">
-								<h3 class="card-title"><%= user_plan.name %></h3>
-								<h6 class="card-subtitle mb-2 text-muted">Slots: <%= user_plan.slots %></h6>
-								<p class="card-text"><%= user_plan.description %></p>
+								<h3 class="card-title"><%= plan.name %></h3>
+								<h6 class="card-subtitle mb-2 text-muted">Slots: <%= plan.limits.slots %></h6>
+								<h6 class="card-subtitle mb-2 text-muted">Cpu: <%= plan.limits.cpu %></h6>
+								<h6 class="card-subtitle mb-2 text-muted">Mem: <%= plan.limits.mem %></h6>
+								<p class="card-text"><%= plan.description %></p>
 								</div>
 							</div>
 						</div>

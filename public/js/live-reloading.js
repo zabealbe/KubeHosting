@@ -13,7 +13,7 @@ var services_following_logs = [];
 
 function create_service_row(service, row_n) {
     const service_row = service_row_template.cloneNode(true);
-    
+
     const service_id = service_row.querySelector("[role=service-id]");
     const service_name = service_row.querySelector("[role=service-name]");
     const service_uri = service_row.querySelector("[role=service-uri]");
@@ -26,7 +26,7 @@ function create_service_row(service, row_n) {
     const service_logs = service_row.querySelector(".service-logs");
 
     service_id.textContent = row_n;
-    
+
     service_name.textContent = service.name;
 
     service_uri.children[0].textContent = service.ingress;
@@ -44,7 +44,7 @@ function create_service_row(service, row_n) {
     service_toggle_logs.querySelector("button").setAttribute("data-bs-target", `[data-service-name="${service.name}"] .collapse`);
 
     service_logs.setAttribute("data-service-name", service.name);
-    service_logs.setAttribute("id", `service-logs-${service.name}`)
+    service_logs.setAttribute("id", `service-logs-${service.name}`);
 
     if (service.active) {
         // set class to active
@@ -56,21 +56,20 @@ function create_service_row(service, row_n) {
 }
 
 async function update_service_table() {
-    services = await fetch(`/api/v1/services`, { headers: {"CSRF-Token": csrfToken}, method: "GET", credentials: "include" })
-        .then(res => {
-            if (res.status == 304) {
-                return [];
-            } else {
-                return res.json();
-            }
-        });
+    services = await fetch(`/api/v1/services`, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" }).then((res) => {
+        if (res.status == 304) {
+            return [];
+        } else {
+            return res.json();
+        }
+    });
 
     const last_row = services_table.rows[services_table.rows.length - 1].cloneNode(true);
     const new_rows = services.map((s, i) => create_service_row(s, i));
 
     last_row.children[0].textContent = new_rows.length;
     new_rows.push(last_row);
-    
+
     services_table.children[1].replaceChildren(...Array.from(new_rows));
 }
 
@@ -78,17 +77,17 @@ function create_service(service) {
     fetch(`/api/v1/services`, {
         headers: {
             "Content-Type": "application/json; charset=utf-8",
-            "CSRF-Token": csrfToken
+            "CSRF-Token": csrfToken,
         },
         method: "POST",
         credentials: "include",
-        body: JSON.stringify(service)
+        body: JSON.stringify(service),
     })
-        .then(_ => update_service_table())
-        .catch(e => console.log(e))
+        .then((_) => update_service_table())
+        .catch((e) => console.log(e))
         .finally(() => {
             serviceNameInput.value = "";
-            serviceSettingsModal.hide()
+            serviceSettingsModal.hide();
         });
 }
 
@@ -96,59 +95,58 @@ function update_service(service) {
     fetch(`/api/v1/services/${service.name}`, {
         headers: {
             "Content-Type": "application/json; charset=utf-8",
-            "CSRF-Token": csrfToken
+            "CSRF-Token": csrfToken,
         },
         method: "PUT",
         credentials: "include",
-        body: JSON.stringify(service)
+        body: JSON.stringify(service),
     })
-        .then(_ => update_service_table())
-        .catch(e => console.log(e))
+        .then((_) => update_service_table())
+        .catch((e) => console.log(e))
         .finally(() => {
-            serviceSettingsModal.hide()
+            serviceSettingsModal.hide();
         });
 }
 
 function update_service_following_logs() {
-    services_following_logs = services.filter(s => s.active);
-    services_following_logs.forEach(s => update_service_logs(s));
+    services_following_logs = services.filter((s) => s.active);
+    services_following_logs.forEach((s) => update_service_logs(s));
 }
 
 function update_service_logs(service) {
-    fetch(`/api/v1/services/${service.name}/logs`, { headers: {"CSRF-Token": csrfToken}, method: "GET", credentials: "include" })
-        .then(res => res.text())
-        .then(logs => {
+    fetch(`/api/v1/services/${service.name}/logs`, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
+        .then((res) => res.text())
+        .then((logs) => {
             const service_logs = document.getElementById(`service-logs-${service.name}`);
             service_logs.children[0].children[0].children[0].textContent = logs;
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
 }
 
 function toggle_service(target, id) {
     if (target.checked) {
         start_service(id);
-    }
-    else {
+    } else {
         stop_service(id);
     }
 }
 
 function start_service(id) {
-    fetch(`/api/v1/services/${id}/start`, { headers: {"CSRF-Token": csrfToken}, method: "POST", credentials: "include" })
-        .then(_ => update_service_table())
-        .catch(e => console.log(e));
+    fetch(`/api/v1/services/${id}/start`, { headers: { "CSRF-Token": csrfToken }, method: "POST", credentials: "include" })
+        .then((_) => update_service_table())
+        .catch((e) => console.log(e));
 }
 
 function stop_service(id) {
-    fetch(`/api/v1/services/${id}/stop`, { headers: {"CSRF-Token": csrfToken}, method: "POST", credentials: "include" })
-        .then(_ => update_service_table())
-        .catch(e => console.log(e));
+    fetch(`/api/v1/services/${id}/stop`, { headers: { "CSRF-Token": csrfToken }, method: "POST", credentials: "include" })
+        .then((_) => update_service_table())
+        .catch((e) => console.log(e));
 }
 
 function delete_service(id) {
-    fetch(`/api/v1/services/${id}`, { headers: {"CSRF-Token": csrfToken}, method: "DELETE", credentials: "include" })
-        .then(_ => update_service_table())
-        .catch(e => console.log(e));
+    fetch(`/api/v1/services/${id}`, { headers: { "CSRF-Token": csrfToken }, method: "DELETE", credentials: "include" })
+        .then((_) => update_service_table())
+        .catch((e) => console.log(e));
 }
 
 function toggle_service_logs(service) {
@@ -181,16 +179,15 @@ function open_service_settings(service) {
 
         const service_name = serviceNameInput.value;
 
-        if (services.find(s => s.name == service_name)) {
+        if (services.find((s) => s.name == service_name)) {
             serviceNameInput.setCustomValidity("Service name already exists");
             serviceNameInput.reportValidity();
             serviceNameInput.setCustomValidity("");
             return;
         }
-            
+
         form.elements.name.value = service_name;
     }
-
 
     serviceSettingsModal.show();
 }
@@ -199,24 +196,23 @@ function validateServiceSettings() {
     const form = serviceSettings.getElementsByTagName("form")[0];
     const image = form.elements.image.value;
 
-    return fetch("/api/v1/images/" + image, { headers: {"CSRF-Token": csrfToken}, method: "GET", credentials: "include" })
-        .then(res => {
-            if (res.status == 200) {
-                return true;
-            } else {
-                form.elements.image.setCustomValidity("Container image not found");
-                form.elements.image.reportValidity();
-                form.elements.image.setCustomValidity("");
+    return fetch("/api/v1/images/" + image, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" }).then((res) => {
+        if (res.status == 200) {
+            return true;
+        } else {
+            form.elements.image.setCustomValidity("Container image not found");
+            form.elements.image.reportValidity();
+            form.elements.image.setCustomValidity("");
 
-                return false;
-            }
-        });
+            return false;
+        }
+    });
 }
 
 function saveServiceSettings(form) {
-    validateServiceSettings().then(valid => {
+    validateServiceSettings().then((valid) => {
         if (valid) {
-            var service = {}
+            var service = {};
             for (const elem of form.elements) {
                 if (elem.name) {
                     service[elem.name] = elem.value;
@@ -224,7 +220,7 @@ function saveServiceSettings(form) {
             }
 
             // check if service already exists
-            if (services.find(s => s.name == service.name)) {
+            if (services.find((s) => s.name == service.name)) {
                 update_service(service);
             } else {
                 create_service(service);
@@ -234,3 +230,35 @@ function saveServiceSettings(form) {
 }
 
 update_service_table();
+
+// stats
+limits = {};
+(function () {
+    fetch("/subscription", { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
+        .then((res) => res.json())
+        .then((res) => {
+            limits = {
+                cpu: res.limits.cpu,
+                mem: res.limits.mem,
+            };
+        })
+        .catch((e) => console.log(e));
+})();
+
+stats = {};
+function update_stats() {
+    return fetch("/api/v1/stats", { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
+        .then((res) => res.json())
+        .then((res) => {
+            stats = Object.keys(res).reduce((acc, key) => {
+                acc[key] = [];
+                res[key].forEach((k) => {
+                    acc[key].push(k.value);
+                });
+                return acc;
+            }, {});
+
+            document.dispatchEvent(new CustomEvent("stats_update"));
+        })
+        .catch((e) => console.log(e));
+}

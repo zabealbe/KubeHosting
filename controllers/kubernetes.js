@@ -199,8 +199,8 @@ function createNamespaceConfig(name) {
 exports.createNamespace =  function(name, limit_cpu, limit_ram) {
     const rq_params = {
         name: name,
-        cpu: limit_cpu,
-        memory: limit_ram,
+        cpu: limit_cpu + 'm',
+        memory: limit_ram + 'Mi',
     }
 
     let n_config = createNamespaceConfig(name);

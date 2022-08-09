@@ -17,17 +17,17 @@ var planSchema = mongoose.Schema({
         type: Number,
         required: true
     },
-    resources: {
+    limits: {
         slots: {
             type: Number,
             required: true
         },
-        cpu: {
-            type: String,
+        cpu: { // in cores
+            type: Number,
             required: true
         },
-        ram: {
-            type: String,
+        mem: { // in megabytes
+            type: Number,
             required: true
         }
     },

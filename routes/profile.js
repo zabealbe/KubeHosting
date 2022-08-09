@@ -13,10 +13,10 @@ router.use(checkAuthenticated);
 // =====================================
 router.get('/',
     function(req, res) {
-        req.user.getPlan().then(user_plan => {
+        req.user.getPlan().then(plan => {
             res.render('profile.ejs', {
                 user : req.user, // get the user out of session and pass to template
-                user_plan: user_plan,
+                plan: plan,
                 message: req.flash('profileMessage')
             });
         });
