@@ -264,7 +264,7 @@
             const info = "CPU usage is the sum of cpu used by all services, it is measured in cores.";
 
             // get cpu usage average
-            const avg = 0
+            let avg = 0
             if (stats.cpu.length > 0)
               avg = stats.cpu.reduce((a, b) => a + b, 0) / stats.cpu.length;
 
@@ -318,10 +318,10 @@
             const info = "RAM usage is the sum of volatile memory used by all services, it is measured in Mebibytes.";
 
             // get mem usage average
-            const avg = 0
+            let avg = 0
             if (stats.mem.length > 0)
               avg = stats.mem.reduce((a, b) => a + b, 0) / stats.mem.length;
-              
+
             chart.data.datasets[0].data = [avg, limits.mem-avg]
             chart.update();
 
