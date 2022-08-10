@@ -199,14 +199,13 @@ function createNamespaceConfig(name) {
 
 exports.createNamespace =  function(name, limit_cpu, limit_ram) {
     const rq_params = {
-        name: name,
         cpu: limit_cpu,
         mem: limit_ram + 'Mi',
     }
     console.log(rq_params)
-    let n_config = createNamespaceConfig(name);
-    let lr_config = createLimitRangeConfig(rq_params);
-    let rq_config = createResourceQuotaConfig(rq_params);
+    const n_config = createNamespaceConfig(name);
+    const lr_config = createLimitRangeConfig(rq_params);
+    const rq_config = createResourceQuotaConfig(rq_params);
 
     return k8sApi_core.createNamespace(n_config)
         .then(function() {
@@ -233,12 +232,8 @@ exports.createNamespace =  function(name, limit_cpu, limit_ram) {
 }
 
 exports.updateResourceQuota = function(namespace, params) {
-    param.mem = params.mem + 'Mi';
-
-    const rq_name = namespace;
-
-    let rq_config = createResourceQuotaConfig(params);
-    rq_config.metadata.name = rq_name;
+    const rq_config = createResourceQuotaConfig(params);
+    const rq_name = rq_config.metadata.name;
 
     return k8sApi_core.replaceNamespacedResourceQuota(rq_name, namespace, rq_config);
 }
