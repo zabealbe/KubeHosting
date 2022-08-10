@@ -176,8 +176,8 @@ function createResourceQuotaConfig(params) {
         },
         spec: {
             hard: {
-                cpu: params.cpu,
-                memory: params.mem,
+                cpu: params.cpu + '',
+                memory: params.mem + 'Mi',
             },
         },
     };
@@ -200,7 +200,7 @@ function createNamespaceConfig(name) {
 exports.createNamespace =  function(name, limit_cpu, limit_ram) {
     const rq_params = {
         cpu: limit_cpu,
-        mem: limit_ram + 'Mi',
+        mem: limit_ram,
     }
     console.log(rq_params)
     const n_config = createNamespaceConfig(name);
@@ -232,8 +232,6 @@ exports.createNamespace =  function(name, limit_cpu, limit_ram) {
 }
 
 exports.updateResourceQuota = function(namespace, params) {
-    params.mem = params.mem + 'Mi';
-
     const rq_config = createResourceQuotaConfig(params);
     const rq_name = rq_config.metadata.name;
 
