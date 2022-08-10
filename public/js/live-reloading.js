@@ -38,7 +38,7 @@ function create_service_row(service, row_n) {
 
     service_activate.children[0].children[0].children[0].setAttribute("onclick", `toggle_service(this, "${service.name}")`);
 
-    service_delete.onclick = () => delete_service("${service.name}");
+    service_delete.onclick = () => delete_service(service.name);
 
     service_toggle_logs.onclick = () => toggle_service_logs(service);
     service_toggle_logs.querySelector("button").setAttribute("data-bs-target", `[data-service-name="${service.name}"] .collapse`);
