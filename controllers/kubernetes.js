@@ -145,7 +145,7 @@ function createLimitRangeConfig(params) {
         apiVersion: 'v1',
         kind: 'LimitRange',
         metadata: {
-            name: params.name,
+            name: 'default',
         },
         spec: {
             limits: [
@@ -172,7 +172,7 @@ function createResourceQuotaConfig(params) {
         apiVersion: 'v1',
         kind: 'ResourceQuota',
         metadata: {
-            name: params.name,
+            name: 'default',
         },
         spec: {
             hard: {
