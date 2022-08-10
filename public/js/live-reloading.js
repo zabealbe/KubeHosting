@@ -47,11 +47,11 @@ function create_service_row(service, row_n) {
 
     service_logs_collapse.addEventListener("show.bs.collapse", () => {
         update_service_logs(service);
-        services_following_logs.push(service.name);
+        services_following_logs.push(service);
     });
 
     service_logs_collapse.addEventListener("hide.bs.collapse", () => {
-        services_following_logs.splice(services_following_logs.indexOf(service.name), 1);
+        services_following_logs.splice(services_following_logs.indexOf(service), 1);
     })
 
     service_logs_collapse = new bootstrap.Collapse(service_logs_collapse, {
