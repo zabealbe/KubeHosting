@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === 'test')  {
 function query(q, start, end, step) {
     return prom.rangeQuery(q, start, end, step)
         .then((res) => {
-            return res.result[0].values
+            return res.result[0].values || [];
         }).catch(console.error);
 }
 

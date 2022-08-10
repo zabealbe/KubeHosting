@@ -1,5 +1,6 @@
 const k8s = require('@kubernetes/client-node');
 const request = require('request');
+const { param } = require('../routes/services');
 
 const kc = new k8s.KubeConfig();
 if (process.env.NODE_ENV === 'test')  {
@@ -151,12 +152,12 @@ function createLimitRangeConfig(params) {
                 {
                     type: 'Container',
                     default: {
-                        cpu: params.cpu,
-                        memory: params.mem,
+                        cpu: 0.2,
+                        memory: '800Mi',
                     },
                     defaultRequest: {
-                        cpu: params.cpu,
-                        memory: params.mem,
+                        cpu: 0.2,
+                        memory: '800Mi',
                     },
                 },
             ],
@@ -199,10 +200,10 @@ function createNamespaceConfig(name) {
 exports.createNamespace =  function(name, limit_cpu, limit_ram) {
     const rq_params = {
         name: name,
-        cpu: limit_cpu + 'm',
+        cpu: limit_cpu,
         mem: limit_ram + 'Mi',
     }
-
+    console.log(rq_params)
     let n_config = createNamespaceConfig(name);
     let lr_config = createLimitRangeConfig(rq_params);
     let rq_config = createResourceQuotaConfig(rq_params);
@@ -232,6 +233,8 @@ exports.createNamespace =  function(name, limit_cpu, limit_ram) {
 }
 
 exports.updateResourceQuota = function(namespace, params) {
+    param.mem = params.mem + 'Mi';
+
     const rq_name = namespace;
 
     let rq_config = createResourceQuotaConfig(params);
