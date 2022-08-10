@@ -122,7 +122,7 @@ userSchema.methods.validPassword = function(password) {
 userSchema.pre('save', function(next) {
     if (this.isNew) {
         this.getPlan().then(plan => {
-            kubernetesController.createNamespace(this._id, plan.resources.cpu, plan.resources.ram).then(() => {
+            kubernetesController.createNamespace(this._id, plan.limits.cpu, plan.limits.mem).then(() => {
                 next();
             }).catch(err => {
                 next(err);
@@ -152,7 +152,7 @@ userSchema.pre('findOneAndDelete', function(next) {
 userSchema.pre('save', function(next) {
     if (this.isNew || this.isModified('plan.plan')) {
         this.getPlan().then(plan => {
-            kubernetesController.updateResourceQuota(this._id, plan.resources).then(() => {
+            kubernetesController.updateResourceQuota(this._id, plan.limits).then(() => {
                 next();
             }).catch(err => {
                 next(err);

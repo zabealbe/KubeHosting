@@ -152,11 +152,11 @@ function createLimitRangeConfig(params) {
                     type: 'Container',
                     default: {
                         cpu: params.cpu,
-                        memory: params.memory,
+                        memory: params.mem,
                     },
                     defaultRequest: {
                         cpu: params.cpu,
-                        memory: params.memory,
+                        memory: params.mem,
                     },
                 },
             ],
@@ -176,7 +176,7 @@ function createResourceQuotaConfig(params) {
         spec: {
             hard: {
                 cpu: params.cpu,
-                memory: params.memory,
+                memory: params.mem,
             },
         },
     };
@@ -200,7 +200,7 @@ exports.createNamespace =  function(name, limit_cpu, limit_ram) {
     const rq_params = {
         name: name,
         cpu: limit_cpu + 'm',
-        memory: limit_ram + 'Mi',
+        mem: limit_ram + 'Mi',
     }
 
     let n_config = createNamespaceConfig(name);
