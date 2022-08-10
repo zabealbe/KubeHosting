@@ -141,7 +141,7 @@ function createIngressConfig(params) {
 }
 
 function createLimitRangeConfig(params) {
-    let lr_config = {
+    const lr_config = {
         apiVersion: 'v1',
         kind: 'LimitRange',
         metadata: {
@@ -168,7 +168,7 @@ function createLimitRangeConfig(params) {
 }
 
 function createResourceQuotaConfig(params) {
-    let rq_config = {
+    const rq_config = {
         apiVersion: 'v1',
         kind: 'ResourceQuota',
         metadata: {
@@ -186,7 +186,7 @@ function createResourceQuotaConfig(params) {
 }
 
 function createNamespaceConfig(name) {
-    let n_config = {
+    const n_config = {
         apiVersion: 'v1',
         kind: 'Namespace',
         metadata: {
@@ -232,6 +232,8 @@ exports.createNamespace =  function(name, limit_cpu, limit_ram) {
 }
 
 exports.updateResourceQuota = function(namespace, params) {
+    params.mem = params.mem + 'Mi';
+
     const rq_config = createResourceQuotaConfig(params);
     const rq_name = rq_config.metadata.name;
 
