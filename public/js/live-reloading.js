@@ -247,7 +247,9 @@ limits = {};
 
 stats = {};
 function update_stats() {
-    return fetch("/api/v1/stats", { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
+    const start = Date.now() - 20 * 1000;
+
+    return fetch("/api/v1/stats?start=" + start, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
         .then((res) => res.json())
         .then((res) => {
             stats = Object.keys(res).reduce((acc, key) => {

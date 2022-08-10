@@ -300,6 +300,7 @@ router.post(['/users/:userID/services/:serviceID/stop', '/services/:serviceID/st
         start: {
             in: ['query'],
             isInt: true,
+            toInt: true,
             optional: true,
             min: 1,
             errorMessage: 'Start time must be valid Unix timestamp greater than 0'
@@ -307,6 +308,7 @@ router.post(['/users/:userID/services/:serviceID/stop', '/services/:serviceID/st
         end: {
             in: ['query'],
             isInt: true,
+            toInt: true,
             optional: true,
             min: 1,
             errorMessage: 'End time must be valid Unix timestamp greater than 0'
@@ -318,7 +320,12 @@ router.post(['/users/:userID/services/:serviceID/stop', '/services/:serviceID/st
         if (!req.query.start) req.query.start = Date.now() - (24 * 60 * 60 * 1000);
         if (!req.query.end) req.query.end = Date.now();
 
-        req.query.step = (req.query.end - req.query.start) / 1000 + 'ms';
+        console.log(req.query.start, req.query.end)
+
+        const steps = 1000;
+        const min_resolution = 1; // seconds
+
+        req.query.step = Math.max(min_resolution, Math.floor((req.query.end - req.query.start) / 1000 / steps));
 
         if (req.query.start > req.query.end) {
             res.status(400).json({

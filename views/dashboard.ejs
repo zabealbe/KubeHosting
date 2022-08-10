@@ -234,7 +234,7 @@
                 'available'
               ],
               datasets: [{
-                data: [0, 1],
+                data: [NaN, NaN],
                 backgroundColor: [
                   'rgb(13, 110, 253)',
                   'rgb(215, 215, 215)'
@@ -286,7 +286,7 @@
                 'available'
               ],
               datasets: [{
-                data: [0, 1],
+                data: [NaN, NaN],
                 backgroundColor: [
                   'rgb(13, 110, 253)',
                   'rgb(215, 215, 215)'
@@ -505,7 +505,7 @@
     //setInterval(() => update_service_table(), 10000);
     //setInterval(() => update_service_following_logs(), 1000);
 
-    setInterval(() => update_stats(), 1000 * 60 * 2);
+    setInterval(() => update_stats(), 1000 * 20);
     update_stats();
   </script>
 </body>
