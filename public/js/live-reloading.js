@@ -238,8 +238,8 @@ update_service_table();
 
 // stats
 limits = {};
-(function () {
-    fetch("/subscription", { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
+function update_limits() {
+    return fetch("/subscription", { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
         .then((res) => res.json())
         .then((res) => {
             limits = {
@@ -248,7 +248,7 @@ limits = {};
             };
         })
         .catch((e) => console.log(e));
-})();
+}
 
 stats = {};
 function update_stats() {
@@ -264,7 +264,9 @@ function update_stats() {
                 });
                 return acc;
             }, {});
-
+        })
+        .then(update_limits)
+        .then(() => {
             document.dispatchEvent(new CustomEvent("stats_update"));
         })
         .catch((e) => console.log(e));

@@ -266,6 +266,8 @@
             // get cpu usage average
             const avg = stats.cpu.reduce((a, b) => a + b, 0) / stats.cpu.length;
 
+            console.log(avg, limits)
+
             chart.data.datasets[0].data = [avg, limits.cpu-avg]
             chart.update();
 
