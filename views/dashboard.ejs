@@ -170,7 +170,7 @@
       <td colspan="100%">
         <div class="collapse">
           <div class="p-3" style="background-color: rgb(0, 0, 0); font-family: monospace; color: antiquewhite; font-size: smaller;">
-            started service ciao <br/> listening on port 80 ...
+            loading ...
           </div>
       </td>
     </tr>
@@ -503,8 +503,8 @@
   </script>
   <script type="application/javascript">
     //setInterval(() => update_service_table(), 10000);
-    //setInterval(() => update_service_following_logs(), 1000);
-
+    
+    setInterval(() => update_service_following_logs(), 1000);
     setInterval(() => update_stats(), 1000 * 20);
     update_stats();
   </script>

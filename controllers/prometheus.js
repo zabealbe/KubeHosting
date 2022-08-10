@@ -39,7 +39,6 @@ function query(q, start, end, step) {
 
 // per namespace ===============================================================
 exports.getNamespaceCpu = function(namespace, start, end, step) {
-    console.log("STEP",step)
     /* get cpu usage for specified namespace */
     let q = ''
     q += `sum(irate(container_cpu_usage_seconds_total{container='', namespace='${namespace}'}[1h]))`

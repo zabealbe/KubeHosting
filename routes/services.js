@@ -320,8 +320,6 @@ router.post(['/users/:userID/services/:serviceID/stop', '/services/:serviceID/st
         if (!req.query.start) req.query.start = Date.now() - (24 * 60 * 60 * 1000);
         if (!req.query.end) req.query.end = Date.now();
 
-        console.log(req.query.start, req.query.end)
-
         const steps = 1000;
         const min_resolution = 1; // seconds
 

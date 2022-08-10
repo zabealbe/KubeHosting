@@ -40,11 +40,27 @@ function create_service_row(service, row_n) {
 
     service_delete.onclick = () => delete_service(service.name);
 
-    service_toggle_logs.onclick = () => toggle_service_logs(service);
-    service_toggle_logs.querySelector("button").setAttribute("data-bs-target", `[data-service-name="${service.name}"] .collapse`);
-
-    service_logs.setAttribute("data-service-name", service.name);
+    // collapse logs
     service_logs.setAttribute("id", `service-logs-${service.name}`);
+
+    let service_logs_collapse = service_logs.querySelector(".collapse");
+
+    service_logs_collapse.addEventListener("show.bs.collapse", () => {
+        update_service_logs(service);
+        services_following_logs.push(service.name);
+    });
+
+    service_logs_collapse.addEventListener("hide.bs.collapse", () => {
+        services_following_logs.splice(services_following_logs.indexOf(service.name), 1);
+    })
+
+    service_logs_collapse = new bootstrap.Collapse(service_logs_collapse, {
+        toggle: false
+    })
+
+    // connect logs toggle with click event
+    service_toggle_logs.onclick = () => service_logs_collapse.toggle();
+
 
     if (service.active) {
         // set class to active
@@ -109,7 +125,6 @@ function update_service(service) {
 }
 
 function update_service_following_logs() {
-    services_following_logs = services.filter((s) => s.active);
     services_following_logs.forEach((s) => update_service_logs(s));
 }
 
@@ -147,16 +162,6 @@ function delete_service(id) {
     fetch(`/api/v1/services/${id}`, { headers: { "CSRF-Token": csrfToken }, method: "DELETE", credentials: "include" })
         .then((_) => update_service_table())
         .catch((e) => console.log(e));
-}
-
-function toggle_service_logs(service) {
-    const service_logs = document.getElementById(`service-logs-${service.name}`);
-    if (service_logs.className == "collapse") {
-        update_service_logs(service);
-        services_following_logs.push(service.name);
-    } else {
-        services_following_logs.splice(services_following_logs.indexOf(service.name), 1);
-    }
 }
 
 function open_service_settings(service) {
