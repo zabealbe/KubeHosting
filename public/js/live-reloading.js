@@ -111,6 +111,8 @@ function update_service_row(service, row_n) {
             case "Succeded":
                 return "text-success";
             case "Stopped":
+                return "text-muted";
+            case "Failed":
                 return "text-danger";
             case "Unknown":
                 return "text-muted";
