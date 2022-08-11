@@ -6,7 +6,7 @@ var plans = [
         duration: 30,
         limits: {
             slots: 4,
-            cpu: '0.2',
+            cpu: '200',
             mem: '800',
         },
         description: 'Free plan for 30 days with 1 slot'
@@ -17,7 +17,7 @@ var plans = [
         duration: 30,
         limits: {
             slots: 8,
-            cpu: '1',
+            cpu: '1000',
             mem: '4000',
         },
         description: 'Basic plan for 30 days with 5 slots'
@@ -28,7 +28,7 @@ var plans = [
         duration: 30,
         limits: {
             slots: 12,
-            cpu: '2',
+            cpu: '2000',
             mem: '8000',
         },
         description: 'Pro plan for 30 days with 1 slots'

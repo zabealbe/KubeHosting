@@ -272,7 +272,7 @@
             }
           });
           function update() {
-            const info = "CPU usage is the sum of cpu used by all services, it is measured in cores.";
+            const info = "CPU usage is the sum of cpu used by all services, it is measured in millicores.";
 
             // get cpu usage average
             let avg = 0
@@ -283,7 +283,7 @@
             chart.update();
 
             
-            center.innerHTML = get_center(avg, limits.cpu, 'c', info);
+            center.innerHTML = get_center(avg, limits.cpu, 'm', info);
           }
 
           document.addEventListener('stats_update', update);
@@ -333,7 +333,7 @@
             if (stats.mem.length > 0)
               avg = stats.mem.reduce((a, b) => a + b, 0) / stats.mem.length;
 
-            chart.data.datasets[0].data = [avg, limits.mem-avg]
+            chart.data.datasets[0].data = [avg.toFixed(0), limits.mem-avg]
             chart.update();
 
             center.innerHTML = get_center(avg, limits.mem, 'Mi', info);

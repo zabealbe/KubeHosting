@@ -178,7 +178,7 @@ function createResourceQuotaConfig(params) {
         },
         spec: {
             hard: {
-                cpu: params.cpu + '',
+                cpu: params.cpu + 'm',
                 memory: params.mem + 'Mi',
             },
         },
