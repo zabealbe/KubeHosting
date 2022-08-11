@@ -221,7 +221,9 @@
           info = info ? (info + "<br><br>") : ""
           info = info + "do you want to <a href='/'>increase</a> this limit?"
 
-          let center = `${(value/max_value*100).toFixed(0)}<span class="fs-6">%</span>
+          const usage = Math.max(100, value / max_value * 100).toFixed(0)
+
+          let center = `${usage}<span class="fs-6">%</span>
             <div class="fs-6 text-muted">of ${max_value}${unit}
               <div class="info">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
