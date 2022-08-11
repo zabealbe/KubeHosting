@@ -9,7 +9,7 @@ const service_placeholder = services_table.rows[0];
 
 const service_row_template = document.getElementById("service-row").content;
 
-var services = {};
+services = {};
 var services_following_logs = [];
 
 function create_service_row(service, row_n) {
@@ -142,6 +142,10 @@ async function update_service_table() {
             update_service_row(service, i + 1);
         }
     });
+
+    console.log(services);
+
+    document.dispatchEvent(new CustomEvent("services_update"));
 }
 
 function create_service(service) {
@@ -297,10 +301,9 @@ function update_limits() {
     return fetch("/subscription", { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
         .then((res) => res.json())
         .then((res) => {
-            limits = {
-                cpu: res.limits.cpu,
-                mem: res.limits.mem,
-            };
+            limits = res.limits;
+
+            document.dispatchEvent(new CustomEvent("limits_update"));
         })
         .catch((e) => console.log(e));
 }
@@ -319,9 +322,7 @@ function update_stats() {
                 });
                 return acc;
             }, {});
-        })
-        .then(update_limits)
-        .then(() => {
+
             document.dispatchEvent(new CustomEvent("stats_update"));
         })
         .catch((e) => console.log(e));

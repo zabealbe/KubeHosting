@@ -215,15 +215,26 @@
         <canvas id="chart_doughnut_mem" width="400" height="400"></canvas>
         <div id="chart_doughnut_mem_center" class="center fs-1"></div>
       </div>
+      <div class="chart-container" style="height:350px; width:300px">
+        <canvas id="chart_doughnut_slots" width="400" height="400"></canvas>
+        <div id="chart_doughnut_slots_center" class="center fs-1"></div>
+      </div>
 
       <script>
-        function get_center(value, max_value, unit, info) {
+        function get_center(value, max_value, unit, info, percent) {
           info = info ? (info + "<br><br>") : ""
           info = info + "do you want to <a href='/'>increase</a> this limit?"
 
-          const usage = Math.max(100, value / max_value * 100).toFixed(0)
+          let usage = 0;
+          let usage_unit = "";
+          if (percent) {
+            usage = Math.min(100, value / max_value * 100).toFixed(0)
+            usage_unit = "%"
+          } else {
+            usage = value
+          }
 
-          let center = `${usage}<span class="fs-6">%</span>
+          let center = `${usage}<span class="fs-6">${usage_unit}</span>
             <div class="fs-6 text-muted">of ${max_value}${unit}
               <div class="info">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -285,7 +296,7 @@
             chart.update();
 
             
-            center.innerHTML = get_center(avg, limits.cpu, 'm', info);
+            center.innerHTML = get_center(avg, limits.cpu, 'm', info, true);
           }
 
           document.addEventListener('stats_update', update);
@@ -338,10 +349,68 @@
             chart.data.datasets[0].data = [avg.toFixed(0), limits.mem-avg]
             chart.update();
 
-            center.innerHTML = get_center(avg, limits.mem, 'Mi', info);
+            center.innerHTML = get_center(avg, limits.mem, 'Mi', info, true);
           }
 
-          document.addEventListener('stats_update', update);
+          document.addEventListener('limits_update', function() {
+            document.addEventListener('stats_update', update);
+          });
+        })();
+
+        (function() {
+          const center = document.getElementById('chart_doughnut_slots_center');
+          const chart = new Chart(document.getElementById('chart_doughnut_slots').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+              labels: [
+                'in use',
+                'available'
+              ],
+              datasets: [{
+                data: [],
+                backgroundColor: [
+                  'rgb(13, 110, 253)',
+                  'rgb(215, 215, 215)'
+                ],
+                hoverOffset: 4
+              }]
+            },
+            options: { 
+              cutout: 85,
+              layout: {
+                  padding: {
+                      top: 20
+                  }
+              },
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Slots'
+                  },
+                  legend: {
+                    position: 'bottom'
+                  }
+              }
+            }
+          });
+          function update() {
+            const info = "The number of slots corresponds to the maximum number of services that can you run at the same time.";
+
+            // get slots usage
+            let active_services = 0;
+            Object.values(services).forEach(service => {
+              if (service.active)
+                active_services += 1;
+            });
+
+            chart.data.datasets[0].data = [active_services, limits.slots-active_services]
+            chart.update();
+
+            center.innerHTML = get_center(active_services, limits.slots, ' slots', info, false);
+          }
+          document.addEventListener('limits_update', function() {
+            document.addEventListener('services_update', update)
+          });
         })();
       </script>
     </div>
@@ -523,10 +592,15 @@
     });
   </script>
   <script type="application/javascript">
-    setInterval(() => update_service_table(), 1000);
-    setInterval(() => update_service_following_logs(), 1000);
-    setInterval(() => update_stats(), 1000 * 20);
-    update_stats();
+    update_limits().then(() => {
+      update_service_table();
+      update_service_following_logs();
+      update_stats();
+
+      setInterval(() => update_service_table(), 1000);
+      setInterval(() => update_service_following_logs(), 1000);
+      setInterval(() => update_stats(), 1000 * 20);
+    });
   </script>
 </body>
 

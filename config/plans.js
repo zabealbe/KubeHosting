@@ -5,7 +5,7 @@ var plans = [
         price: 0,
         duration: 30,
         limits: {
-            slots: 4,
+            slots: 1,
             cpu: '200',
             mem: '800',
         },
@@ -16,7 +16,7 @@ var plans = [
         price: 10,
         duration: 30,
         limits: {
-            slots: 8,
+            slots: 5,
             cpu: '1000',
             mem: '4000',
         },
@@ -27,7 +27,7 @@ var plans = [
         price: 20,
         duration: 30,
         limits: {
-            slots: 12,
+            slots: 10,
             cpu: '2000',
             mem: '8000',
         },
