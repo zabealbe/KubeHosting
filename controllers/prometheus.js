@@ -42,7 +42,7 @@ function query(q, start, end, step) {
 exports.getNamespaceCpu = function(namespace, start, end, step) {
     /* get cpu usage for specified namespace */
     let q = ''
-    q += `sum(irate(container_cpu_usage_seconds_total{container='', namespace='${namespace}'}[2m]))`
+    q += `sum(irate(container_cpu_usage_seconds_total{container='', namespace='${namespace}'}[2m])) * 1000`
 
     return query(q, start, end, step)
 }
@@ -74,7 +74,7 @@ exports.getNamespaceNetRcv = function(namespace, start, end, step) {
 // per service =================================================================
 exports.getServiceCpu = function(namespace, service_id, start, end, step) {
     let q = ''
-    q += `irate(container_cpu_usage_seconds_total{container='',pod=~'${service_id}.*', namespace='${namespace}'}[2m])`
+    q += `irate(container_cpu_usage_seconds_total{container='',pod=~'${service_id}.*', namespace='${namespace}'}[2m]) * 1000`
 
     //q += `/ on() kube_pod_container_resource_limits{resource='cpu', pod=~'${service_id}.*', namespace='${namespace}'}`
 
