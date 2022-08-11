@@ -42,7 +42,7 @@ function query(q, start, end, step) {
 exports.getNamespaceCpu = function(namespace, start, end, step) {
     /* get cpu usage for specified namespace */
     let q = ''
-    q += `sum(irate(container_cpu_usage_seconds_total{container='', namespace='${namespace}'}[1h]))`
+    q += `sum(irate(container_cpu_usage_seconds_total{container='', namespace='${namespace}'}[2m]))`
 
     return query(q, start, end, step)
 }
@@ -58,7 +58,7 @@ exports.getNamespaceMem = function(namespace, start, end, step) {
 exports.getNamespaceNetSnd = function(namespace, start, end, step) {
     /* get cpu usage for specified namespace */
     let q = ''
-    q += `sum(irate(container_network_transmit_bytes_total{namespace='${namespace}', id=~"/kubepods/.*"}[1h]))`
+    q += `sum(irate(container_network_transmit_bytes_total{namespace='${namespace}', id=~"/kubepods/.*"}[2m]))`
 
     return query(q, start, end, step)
 }
@@ -66,7 +66,7 @@ exports.getNamespaceNetSnd = function(namespace, start, end, step) {
 exports.getNamespaceNetRcv = function(namespace, start, end, step) {
     /* get cpu usage for specified namespace */
     let q = ''
-    q += `sum(irate(container_network_receive_bytes_total{namespace='${namespace}', id=~"/kubepods/.*"}[1h]))`
+    q += `sum(irate(container_network_receive_bytes_total{namespace='${namespace}', id=~"/kubepods/.*"}[2m]))`
 
     return query(q, start, end, step)
 }
@@ -74,7 +74,7 @@ exports.getNamespaceNetRcv = function(namespace, start, end, step) {
 // per service =================================================================
 exports.getServiceCpu = function(namespace, service_id, start, end, step) {
     let q = ''
-    q += `irate(container_cpu_usage_seconds_total{container='',pod=~'${service_id}.*', namespace='${namespace}'}[1h])`
+    q += `irate(container_cpu_usage_seconds_total{container='',pod=~'${service_id}.*', namespace='${namespace}'}[2m])`
 
     //q += `/ on() kube_pod_container_resource_limits{resource='cpu', pod=~'${service_id}.*', namespace='${namespace}'}`
 
@@ -91,14 +91,14 @@ exports.getServiceMem = function(namespace, service_id, start, end, step) {
 
 exports.getServiceNetSnd = function(namespace, service_id, start, end, step) {
     let q = ''
-    q += `irate(container_network_transmit_bytes_total{pod=~'${service_id}.*', namespace='${namespace}', id=~"/kubepods/.*"}[1h])`
+    q += `irate(container_network_transmit_bytes_total{pod=~'${service_id}.*', namespace='${namespace}', id=~"/kubepods/.*"}[2m])`
     
     return query(q, start, end, step)
 }
 
 exports.getServiceNetRcv = function(namespace, service_id, start, end, step) {
     let q = ''
-    q += `irate(container_network_receive_bytes_total{pod=~'${service_id}.*', namespace='${namespace}', id=~"/kubepods/.*"}[1h])`
+    q += `irate(container_network_receive_bytes_total{pod=~'${service_id}.*', namespace='${namespace}', id=~"/kubepods/.*"}[2m])`
     
     return query(q, start, end, step)
 }
