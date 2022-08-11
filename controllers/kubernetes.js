@@ -151,18 +151,20 @@ function createLimitRangeConfig(params) {
             limits: [
                 {
                     type: 'Container',
-                    default: {
-                        cpu: 0.2,
+                    _default: {
+                        cpu: '200m',
                         memory: '800Mi',
                     },
                     defaultRequest: {
-                        cpu: 0.2,
+                        cpu: '200m',
                         memory: '800Mi',
                     },
                 },
             ],
         },
     };
+
+    console.log(JSON.stringify(lr_config, null, 2));
 
     return lr_config;
 }
