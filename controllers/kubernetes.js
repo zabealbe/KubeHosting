@@ -247,8 +247,6 @@ exports.createService = function(namespace, service) {
     let sv_config = createServiceConfig(service);
     let ig_config = createIngressConfig(service);
 
-    console.log(JSON.stringify(rc_config, null, 2));
-
     let rc_promise = k8sApi_core.createNamespacedReplicationController(namespace, rc_config);
     let sv_promise = k8sApi_core.createNamespacedService(namespace, sv_config);
     let ig_promise = k8sApi_network.createNamespacedIngress(namespace, ig_config);
@@ -314,13 +312,37 @@ exports.deleteService = function(namespace, service_id) {
     return all_promise;
 }
 
-exports.getServiceLogs = function(namespace, service_id) {
+exports.getPods = function(namespace) {
+    return k8sApi_core.listNamespacedPod(namespace)
+        .then(function(res) {
+            return res.body.items;
+        });
+}
+
+exports.getPod = function(namespace, service_id) {
     return k8sApi_core.listNamespacedPod(namespace, undefined, undefined, undefined, undefined, `app=${service_id}`)
         .then(function(res) {
-            let pod_name = res.body.items[0].metadata.name; // pod name
+            let matches = res.body.items
+            if (matches.length == 0) {
+                return {
+                    status: 'not-found',
+                }
+            }
+            if (matches.length > 1) {
+                throw new Error('Multiple pods found for service ' + service_id);
+            }
+            return matches[0];
+        });
+}
 
-            return k8sApi_core.readNamespacedPodLog(pod_name, namespace)})
-        .then(function(res) {
-            return res.body || "";
+exports.getPodLogs = function(namespace, service_id) {
+    return exports.getPod(namespace, service_id)
+        .then(function(pod) {
+            if (pod.status == 'not-found') {
+                return "";
+            }
+            return k8sApi_core.readNamespacedPodLog(pod.metadata.name, namespace);
+        }).then(function(res) {
+            return res.body;
         });
 }

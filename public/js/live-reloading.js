@@ -4,15 +4,18 @@ const maxPODs = document.head.querySelector("meta[name='user_slots']").content;
 const serviceSettings = document.getElementById("serviceSettings");
 const serviceSettingsModal = new bootstrap.Modal(serviceSettings);
 
-const services_table = document.getElementById("services-table");
+const services_table = document.querySelector("#services-table tbody");
+const service_placeholder = services_table.rows[0];
 
 const service_row_template = document.getElementById("service-row").content;
 
-var services = [];
+var services = {};
 var services_following_logs = [];
 
 function create_service_row(service, row_n) {
     const service_row = service_row_template.cloneNode(true);
+
+    service_row.querySelector(".service").setAttribute("id", `service-row-${service.name}`);
 
     const service_id = service_row.querySelector("[role=service-id]");
     const service_name = service_row.querySelector("[role=service-name]");
@@ -20,6 +23,7 @@ function create_service_row(service, row_n) {
     const service_replicas = service_row.querySelector("[role=service-replicas]");
     const service_settings = service_row.querySelector("[role=service-settings]");
     const service_activate = service_row.querySelector("[role=service-activate]");
+    const service_status = service_row.querySelector("[role=service-status]");
     const service_delete = service_row.querySelector("[role=service-delete]");
     const service_toggle_logs = service_row.querySelector("[role=service-toggle-logs]");
 
@@ -27,16 +31,19 @@ function create_service_row(service, row_n) {
 
     service_id.textContent = row_n;
 
-    service_name.textContent = service.name;
+    service_name.textContent = service.name; // can't be changed
 
-    service_uri.children[0].textContent = service.ingress;
-    service_uri.children[0].href = "http://" + service.ingress;
+    //service_uri.children[0].textContent = service.ingress;
+    //service_uri.children[0].href = "http://" + service.ingress;
 
-    service_replicas.children[0].textContent = `${service.replicas} / ${service.replicas}`;
+    //service_replicas.children[0].textContent = `${service.replicas} / ${service.replicas}`;
 
     service_settings.children[0].onclick = () => open_service_settings(service);
 
+    service_activate.children[0].children[0].children[0].checked = service.active;
     service_activate.children[0].children[0].children[0].setAttribute("onclick", `toggle_service(this, "${service.name}")`);
+
+    //service_status.children[0].textContent = service.status;
 
     service_delete.onclick = () => delete_service(service.name);
 
@@ -61,18 +68,62 @@ function create_service_row(service, row_n) {
     // connect logs toggle with click event
     service_toggle_logs.onclick = () => service_logs_collapse.toggle();
 
-
-    if (service.active) {
-        // set class to active
-        service_row.className = "";
-        service_activate.children[0].children[0].children[0].checked = true;
-    }
-
     return service_row;
 }
 
+function update_service_row(service, row_n) {
+    const service_row = document.getElementById(`service-row-${service.name}`);
+
+    const service_id = service_row.querySelector("[role=service-id]");
+    const service_name = service_row.querySelector("[role=service-name]");
+    const service_uri = service_row.querySelector("[role=service-uri]");
+    const service_replicas = service_row.querySelector("[role=service-replicas]");
+    const service_settings = service_row.querySelector("[role=service-settings]");
+    const service_activate = service_row.querySelector("[role=service-activate]");
+    const service_status = service_row.querySelector("[role=service-status]");
+    const service_delete = service_row.querySelector("[role=service-delete]");
+    const service_toggle_logs = service_row.querySelector("[role=service-toggle-logs]");
+
+    const service_logs = service_row.querySelector(".service-logs");
+
+    service_id.textContent = row_n;
+
+    service_name.textContent = service.name;
+
+    service_uri.children[0].textContent = service.ingress;
+    service_uri.children[0].href = "http://" + service.ingress;
+
+    service_replicas.children[0].textContent = `${service.replicas} / ${service.replicas}`;
+
+    service_activate.children[0].children[0].children[0].checked = service.active;
+    service_activate.children[0].children[0].children[0].setAttribute("onclick", `toggle_service(this, "${service.name}")`);
+
+    service_settings.children[0].onclick = () => open_service_settings(service);
+
+    service_status.children[0].textContent = service.status;
+
+    function get_status_class(status) {
+        switch (status) {
+            case "Pending":
+                return "text-warning";
+            case "Running":
+                return "text-success";
+            case "Succeded":
+                return "text-success";
+            case "Stopped":
+                return "text-danger";
+            case "Unknown":
+                return "text-muted";
+            default:
+                return "text-muted";
+        }
+    }
+
+    service_status.className = get_status_class(service.status);
+}
+
 async function update_service_table() {
-    services = await fetch(`/api/v1/services`, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" }).then((res) => {
+    new_services = await fetch(`/api/v1/services`, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" }).then((res) => {
         if (res.status == 304) {
             return [];
         } else {
@@ -80,13 +131,15 @@ async function update_service_table() {
         }
     });
 
-    const last_row = services_table.rows[services_table.rows.length - 1].cloneNode(true);
-    const new_rows = services.map((s, i) => create_service_row(s, i));
-
-    last_row.children[0].textContent = new_rows.length;
-    new_rows.push(last_row);
-
-    services_table.children[1].replaceChildren(...Array.from(new_rows));
+    new_services.forEach((service, i) => {
+        if (!services[service.name]) {
+            services[service.name] = service;
+            services_table.insertBefore(create_service_row(service, i + 1), service_placeholder);
+        } else {
+            services[service.name] = service;
+            update_service_row(service, i + 1);
+        }
+    });
 }
 
 function create_service(service) {
@@ -184,7 +237,7 @@ function open_service_settings(service) {
 
         const service_name = serviceNameInput.value;
 
-        if (services.find((s) => s.name == service_name)) {
+        if (services[service_name]) {
             serviceNameInput.setCustomValidity("Service name already exists");
             serviceNameInput.reportValidity();
             serviceNameInput.setCustomValidity("");
@@ -225,7 +278,7 @@ function saveServiceSettings(form) {
             }
 
             // check if service already exists
-            if (services.find((s) => s.name == service.name)) {
+            if (services[service.name]) {
                 update_service(service);
             } else {
                 create_service(service);

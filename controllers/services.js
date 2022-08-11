@@ -145,7 +145,26 @@ exports.deleteService = function (req, res) {
 };
 
 exports.listServices = function (req, res) {
-    res.status(200).send(req.owner.services);
+    let user_id = req.owner._id.valueOf();
+    let services = req.owner.services;
+
+    kubernetes.getPods(user_id).then((pods) => {
+        let pods_by_service = {};
+        pods.forEach((pod) => {
+            pods_by_service[pod.metadata.labels.app] = pod;
+        });
+
+        services.forEach((service) => {
+            if(service.active) {
+                service.status = pods_by_service[service.name] ? pods_by_service[service.name].status.phase : "Unknown";
+            } else {
+                service.status = "Stopped";
+            }
+        });
+
+        console.log(JSON.stringify(services));
+        res.status(200).send(services);
+    });
 };
 
 exports.getServiceLogs = function (req, res) {
@@ -157,13 +176,35 @@ exports.getServiceLogs = function (req, res) {
     if (service) {
         console.log(user_id, service.name);
         kubernetes
-            .getServiceLogs(user_id, service.name)
+            .getPodLogs(user_id, service.name)
             .then((logs) => {
                 res.status(200).send(logs);
             })
             .catch((err) => {
                 console.log(err);
                 res.status(500).send({ error: "Error getting service logs" });
+            });
+    } else {
+        res.status(404).send({ error: "Service not found" });
+    }
+};
+
+exports.getServiceStatus = function (req, res) {
+    let user_id = req.owner._id.valueOf();
+    let service_id = req.params.serviceID;
+
+    let service = req.owner.services.find((service) => service.name == service_id);
+
+    if (service) {
+        console.log(user_id, service.name);
+        kubernetes
+            .getPod(user_id, service.name)
+            .then((pod) => {
+                console.log(pod)
+            })
+            .catch((err) => {
+                console.log(err);
+                res.status(500).send({ error: "Error getting service status" });
             });
     } else {
         res.status(404).send({ error: "Service not found" });
