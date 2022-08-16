@@ -6,5 +6,5 @@ exports.checkAuthenticated = function(req, res, next) {
         return next();
   
     // if they aren't redirect them to the home page
-    res.status(401).redirect('/login');
+    res.redirect('/login');
   }

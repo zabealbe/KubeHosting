@@ -17,10 +17,8 @@ function create_service_row(service, row_n) {
 
     service_row.querySelector(".service").setAttribute("id", `service-row-${service.name}`);
 
-    const service_id = service_row.querySelector("[role=service-id]");
     const service_name = service_row.querySelector("[role=service-name]");
     const service_uri = service_row.querySelector("[role=service-uri]");
-    const service_replicas = service_row.querySelector("[role=service-replicas]");
     const service_settings = service_row.querySelector("[role=service-settings]");
     const service_activate = service_row.querySelector("[role=service-activate]");
     const service_status = service_row.querySelector("[role=service-status]");
@@ -29,14 +27,10 @@ function create_service_row(service, row_n) {
 
     const service_logs = service_row.querySelector(".service-logs");
 
-    service_id.textContent = row_n;
-
     service_name.textContent = service.name; // can't be changed
 
     //service_uri.children[0].textContent = service.ingress;
     //service_uri.children[0].href = "http://" + service.ingress;
-
-    //service_replicas.children[0].textContent = `${service.replicas} / ${service.replicas}`;
 
     service_settings.children[0].onclick = () => open_service_settings(service);
 
@@ -74,10 +68,8 @@ function create_service_row(service, row_n) {
 function update_service_row(service, row_n) {
     const service_row = document.getElementById(`service-row-${service.name}`);
 
-    const service_id = service_row.querySelector("[role=service-id]");
     const service_name = service_row.querySelector("[role=service-name]");
     const service_uri = service_row.querySelector("[role=service-uri]");
-    const service_replicas = service_row.querySelector("[role=service-replicas]");
     const service_settings = service_row.querySelector("[role=service-settings]");
     const service_activate = service_row.querySelector("[role=service-activate]");
     const service_status = service_row.querySelector("[role=service-status]");
@@ -86,14 +78,10 @@ function update_service_row(service, row_n) {
 
     const service_logs = service_row.querySelector(".service-logs");
 
-    service_id.textContent = row_n;
-
     service_name.textContent = service.name;
 
     service_uri.children[0].textContent = service.ingress;
     service_uri.children[0].href = "http://" + service.ingress;
-
-    service_replicas.children[0].textContent = `${service.replicas} / ${service.replicas}`;
 
     service_activate.children[0].children[0].children[0].checked = service.active;
     service_activate.children[0].children[0].children[0].setAttribute("onclick", `toggle_service(this, "${service.name}")`);
@@ -125,7 +113,7 @@ function update_service_row(service, row_n) {
 }
 
 async function update_service_table() {
-    new_services = await fetch(`/api/v1/services`, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" }).then((res) => {
+    res_services = await fetch(`/api/v1/services`, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" }).then((res) => {
         if (res.status == 304) {
             return [];
         } else {
@@ -133,17 +121,27 @@ async function update_service_table() {
         }
     });
 
-    new_services.forEach((service, i) => {
-        if (!services[service.name]) {
-            services[service.name] = service;
+    const new_services = {}
+
+    res_services.forEach((service, i) => {
+        if (!services[service.name]) { // new service
+            new_services[service.name] = service;
             services_table.insertBefore(create_service_row(service, i + 1), service_placeholder);
-        } else {
-            services[service.name] = service;
+        } else {                       // update service
+            new_services[service.name] = service;
             update_service_row(service, i + 1);
         }
     });
 
-    console.log(services);
+    Object.keys(services).forEach((service_name, i) => {
+        if (!new_services[service_name]) { // delete service
+            services_following_logs.splice(services_following_logs.indexOf(service_name), 1);
+            document.getElementById(`service-row-${service_name}`).remove()  // delete service row
+            document.getElementById(`service-logs-${service_name}`).remove() // delete logs row
+        }
+    });
+
+    services = new_services;
 
     document.dispatchEvent(new CustomEvent("services_update"));
 }
@@ -188,13 +186,33 @@ function update_service_following_logs() {
 }
 
 function update_service_logs(service) {
-    fetch(`/api/v1/services/${service.name}/logs`, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
-        .then((res) => res.text())
-        .then((logs) => {
-            const service_logs = document.getElementById(`service-logs-${service.name}`);
-            service_logs.children[0].children[0].children[0].textContent = logs;
+    service = services[service.name];
+
+    fetch(`/api/v1/services/${service.name}/logs`,
+        {
+            headers: { "CSRF-Token": csrfToken },
+            method: "GET",
+            credentials: "include",
+            redirect: "manual"
         })
-        .catch((e) => console.log(e));
+        .then((res) => {
+            if (service.status != "Running" && service.status != "Succeded")
+                throw new Error("This service is not running.")
+            if (res.status >= 400)
+                throw new Error("An error occurred while retrieving logs.")
+            return res.text()
+        })
+        .then((logs) => {
+            return logs || "This service didn't produce any logs yet.";
+        })
+        .catch((e) => {
+            return e.message;
+        })
+        .then((text) => {
+            const service_logs = document.getElementById(`service-logs-${service.name}`);
+            service_logs.children[0].children[0].children[0].textContent = text;
+        });
+
 }
 
 function toggle_service(target, id) {
@@ -310,18 +328,22 @@ function update_limits() {
 
 stats = {};
 function update_stats() {
-    const start = Date.now() - 20 * 1000;
+    //const start = Date.now() - 20 * 1000;
+    const start = Date.now() - 60 * 60 * 1000;
+    const step = 30;
 
-    return fetch("/api/v1/stats?start=" + start, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
+    return fetch("/api/v1/stats?start=" + start + "&step=" + step, { headers: { "CSRF-Token": csrfToken }, method: "GET", credentials: "include" })
         .then((res) => res.json())
         .then((res) => {
-            stats = Object.keys(res).reduce((acc, key) => {
-                acc[key] = [];
-                res[key].forEach((k) => {
-                    acc[key].push(k.value);
-                });
-                return acc;
-            }, {});
+            //stats = Object.keys(res).reduce((acc, key) => {
+            //    acc[key] = [];
+            //    res[key].forEach((k) => {
+            //        acc[key].push(k.value);
+            //    });
+            //    return acc;
+            //}, {});
+            stats = res;
+            console.log(stats);
 
             document.dispatchEvent(new CustomEvent("stats_update"));
         })

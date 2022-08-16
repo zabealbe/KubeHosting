@@ -312,8 +312,15 @@ router.post(['/users/:userID/services/:serviceID/stop', '/services/:serviceID/st
             optional: true,
             min: 1,
             errorMessage: 'End time must be valid Unix timestamp greater than 0'
+        },
+        step: {
+            in :['query'],
+            isInt: true,
+            toInt: true,
+            optional: true,
+            min: 1,
+            errorMessage: 'Step must be a positive integer expressed in seconds'
         }
-
     }),
     handleErrors,
     (req, res, next) => {
@@ -323,7 +330,7 @@ router.post(['/users/:userID/services/:serviceID/stop', '/services/:serviceID/st
         const steps = 1000;
         const min_resolution = 1; // seconds
 
-        req.query.step = Math.max(min_resolution, Math.floor((req.query.end - req.query.start) / 1000 / steps));
+        if (!req.query.step) req.query.step = Math.max(min_resolution, Math.floor((req.query.end - req.query.start) / 1000 / steps));
 
         if (req.query.start > req.query.end) {
             res.status(400).json({

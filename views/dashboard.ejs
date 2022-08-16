@@ -15,6 +15,8 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.0/chartjs-adapter-moment.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datasource-prometheus/dist/chartjs-plugin-datasource-prometheus.umd.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,6 +35,15 @@
 
     .pod:focus+button {
       opacity: 1;
+    }
+
+    .charts {
+      width: 100%;
+      height: 350px;
+    }
+
+    #services-table {
+      table-layout: fixed;
     }
 
     #services-table .pods {
@@ -129,8 +140,12 @@
 <body>
   <template id="service-row">
     <tr class="service">
-      <td role="service-id" scope="row" class="d-none d-sm-table-cell align-middle fw-bold">
-          0
+      <td role="service-activate">
+        <div class="d-flex align-items-center my-1">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox">
+          </div>
+        </div>
       </td>
       <td role="service-name">
           service name
@@ -138,8 +153,10 @@
       <td role="service-uri" class="d-none d-lg-table-cell align-middle">
           <a href=""></a>
       </td>
-      <td role="service-replicas">
-          <span class="me-2 pods">0 / 0</span>
+      <td role="service-status">
+        <div class="d-flex align-items-center my-1">
+
+        </div>
       </td>
       <td role="service-settings">
         <button class="btn btn-sm btn-outline-primary mx-1">
@@ -150,17 +167,14 @@
           Edit
         </button>
       </td>
-      <td role="service-activate">
-        <div class="d-flex align-items-center my-1">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox">
-          </div>
-        </div>
-      </td>
-      <td role="service-status">
-        <div class="d-flex align-items-center my-1">
-
-        </div>
+      <td role="service-toggle-logs">
+        <button type="button" class="btn btn-sm btn-outline-dark collapsed mx-1" data-bs-toggle="collapse">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear my-1" viewBox="0 0 16 16">
+            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+            <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+          </svg>
+          Logs
+        </button>
       </td>
       <td role="service-delete" style="cursor: pointer;">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square"
@@ -173,16 +187,11 @@
           </path>
         </svg>
       </td>
-      <td role="service-toggle-logs">
-        <button type="button" class="btn btn-sm btn-outline-dark collapsed mx-1" data-bs-toggle="collapse">See log</button>
-      </td>
     </tr>
     <tr class="service-logs">
       <td colspan="100%">
         <div class="collapse">
-          <pre class="p-3" style="background-color: rgb(0, 0, 0); font-family: monospace; color: antiquewhite; font-size: smaller;">
-            loading ...
-          </pre>
+          <pre class="p-3" style="background-color: rgb(0, 0, 0); font-family: monospace; color: antiquewhite; font-size: smaller;">Loading...</pre>
       </td>
     </tr>
   </template>
@@ -206,17 +215,30 @@
   </nav>
 
   <div class="container" id="hero">
-    <div id="gauges" class="d-flex justify-content-evenly">
-      <div class="chart-container" style="height:350px; width:300px">
-        <canvas id="chart_doughnut_cpu" width="400" height="400"></canvas>
+    <div id="chart-selector">
+      <button id="chart-selector-gauge" class="btn btn-sm btn-primary mx-1">Gauge
+        <svg xmlns="http://www.w3.org/2000/svg"  width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="m 9.75 11 c 0 0.9656 -0.7844 1.75 -1.75 1.75 c -0.9656 0 -1.75 -0.7844 -1.75 -1.75 c 0 -0.6969 0.4094 -1.3 0.9719 -1.5813 v -5.6969 c 0 -0.3875 0.3625 -0.75 0.75 -0.75 c 0.4438 0 0.7781 0.3625 0.7781 0.75 v 5.6969 c 0.5906 0.2813 1 0.8844 1 1.5813 v 0 z m -5.75 -6 c 0 -0.5531 0.4469 -1 1 -1 c 0.5531 0 1 0.4469 1 1 c 0 0.5531 -0.4469 1 -1 1 c -0.5531 0 -1 -0.4469 -1 -1 z m 0.5 3 c 0 0.5531 -0.4469 1 -1 1 c -0.5522 0 -1 -0.4469 -1 -1 c 0 -0.5531 0.4478 -1 1 -1 c 0.5531 0 1 0.4469 1 1 z m 7 0 c 0 -0.5531 0.4469 -1 1 -1 c 0.5531 0 1 0.4469 1 1 c 0 0.5531 -0.4469 1 -1 1 c -0.5531 0 -1 -0.4469 -1 -1 z m 0.5 -3 c 0 0.5531 -0.4469 1 -1 1 c -0.5531 0 -1 -0.4469 -1 -1 c 0 -0.5531 0.4469 -1 1 -1 c 0.5531 0 1 0.4469 1 1 z m -12 3 c 0 -4.4188 3.5812 -8 8 -8 c 4.4187 0 8 3.5812 8 8 c 0 4.4187 -3.5813 8 -8 8 c -4.4188 0 -8 -3.5813 -8 -8 z m 8 6.5 c 3.5906 0 6.5 -2.9094 6.5 -6.5 c 0 -3.5906 -2.9094 -6.5 -6.5 -6.5 c -3.5906 0 -6.5 2.9094 -6.5 6.5 c 0 3.5906 2.9094 6.5 6.5 6.5 z"/>
+        </svg>
+      </button>
+      <button id="chart-selector-series" class="btn btn-sm btn-primary mx-1">Timeseries
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="m 1.5 12.75 c 0 0.4156 0.3359 0.75 0.75 0.75 h 13 c 0.4156 0 0.75 0.3344 0.75 0.75 c 0 0.4156 -0.3344 0.75 -0.75 0.75 h -13 c -1.2425 0 -2.25 -1.0062 -2.25 -2.25 v -11 c 0 -0.4141 0.3359 -0.75 0.75 -0.75 c 0.4141 0 0.75 0.3359 0.75 0.75 v 11 z m 9.0031 -3.2469 c -0.2656 0.3187 -0.7406 0.3187 -1.0344 0 l -2.4969 -2.4438 l -2.4688 2.4438 c -0.2656 0.3187 -0.7406 0.3187 -1.0344 0 c -0.2906 -0.2656 -0.2906 -0.7406 0 -1.0344 l 3 -3 c 0.1406 -0.1406 0.3312 -0.2188 0.5031 -0.2188 c 0.2281 0 0.4188 0.0781 0.5313 0.2188 l 2.4969 2.4719 l 3.7188 -3.7219 c 0.2937 -0.2906 0.7688 -0.2906 1.0344 0 c 0.3187 0.2938 0.3187 0.7687 0 1.0344 l -4.25 4.25 z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="gauges" class="d-flex justify-content-evenly charts">
+      <div class="chart-container">
+        <canvas id="chart_doughnut_cpu"></canvas>
         <div id="chart_doughnut_cpu_center" class="center fs-1"></div>
       </div>
-      <div class="chart-container" style="height:350px; width:300px">
-        <canvas id="chart_doughnut_mem" width="400" height="400"></canvas>
+      <div class="chart-container">
+        <canvas id="chart_doughnut_mem"></canvas>
         <div id="chart_doughnut_mem_center" class="center fs-1"></div>
       </div>
-      <div class="chart-container" style="height:350px; width:300px">
-        <canvas id="chart_doughnut_slots" width="400" height="400"></canvas>
+      <div class="chart-container">
+        <canvas id="chart_doughnut_slots"></canvas>
         <div id="chart_doughnut_slots_center" class="center fs-1"></div>
       </div>
 
@@ -288,9 +310,11 @@
             const info = "CPU usage is the sum of cpu used by all services, it is measured in millicores.";
 
             // get cpu usage average
+            const data = stats.cpu.splice(-2);
+
             let avg = 0
-            if (stats.cpu.length > 0)
-              avg = stats.cpu.reduce((a, b) => a + b, 0) / stats.cpu.length;
+            if (data.length > 0)
+              avg = data.reduce((a, b) => a + b.value, 0) / data.length;
 
             chart.data.datasets[0].data = [avg, limits.cpu-avg]
             chart.update();
@@ -342,9 +366,11 @@
             const info = "RAM usage is the sum of volatile memory used by all services, it is measured in Mebibytes.";
 
             // get mem usage average
+            const data = stats.mem.splice(-2);
+
             let avg = 0
-            if (stats.mem.length > 0)
-              avg = stats.mem.reduce((a, b) => a + b, 0) / stats.mem.length;
+            if (data.length > 0)
+              avg = data.reduce((a, b) => a + b.value, 0) / data.length;
 
             chart.data.datasets[0].data = [avg.toFixed(0), limits.mem-avg]
             chart.update();
@@ -415,64 +441,175 @@
       </script>
     </div>
 
-    <div class="table-responsive">
-      <table class="table table-hover text-nowrap align-middle" id="services-table">
-        <thead>
-          <tr>
-            <th scope="col" class="d-none d-sm-table-cell">#</th>
-            <th scope="col" >Service name</th>
-            <th scope="col" class="d-none d-lg-table-cell">Ingress</th>
-            <th scope="col">POD</th>
-            <th scope="col">Configuration</th>
-            <th scope="col">Active</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="text-muted">
-              <td scope="row" class="fw-bold d-none d-sm-table-cell">
-                  0
-              </rd>
-              <td class="">
-                <div class="input-group input-group-sm">
-                  <form action="javascript:void(0);" onsubmit="open_service_settings();">
-                    <input id="serviceNameInput" type="text" maxlength="16" class="form-control" placeholder="Service Name" pattern="[0-9a-z][0-9a-z-]+" title="must consist of lowercase alphanumeric characters or '-'" required>
-                  </form>
-                </div>
-              </td>
-              <td class="d-none d-lg-table-cell">
-                -
-              </td>
-              <td class="pods">
-                <div class="d-table-cell align-items-center">
-                  <span class="me-2">- / -</span>
-                </td>
-              <td>
-                <button class="btn btn-sm btn-outline-secondary disabled mx-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear my-1" viewBox="0 0 16 16">
-                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
-                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
-                  </svg>
-                  Edit
-                </button>
-              </td>
-              <td>
-                -
-              </td>
-              <td>
-                -
-              </td>
-              <td style="cursor: pointer;" class="text-dark" onclick="openServiceSettings()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                  class="bi bi-plus-square-fill my-2" viewBox="0 0 16 16">
-                  <path
-                    d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z" />
-                </svg>
-              </td>
-          </tr>
-        </tbody>
-      </table>
+    <div id="series" class="d-none charts">
+      <canvas id="chart_line_cpu"></canvas>
+      <script>
+        (function(){
+          const chart = new Chart(document.getElementById('chart_line_cpu').getContext('2d'), {
+            type: 'line',
+            data: {
+              datasets: [{
+                label: 'cpu',
+                data: [],
+                backgroundColor: [
+                  'rgb(13, 110, 253)'
+                ],
+                borderColor: 'rgb(13, 110, 253)',
+                hoverOffset: 4,
+              },
+              {
+                label: 'ram',
+                data: [],
+                backgroundColor: [
+                  'rgb(33, 37, 41)'
+                ],
+                borderColor: 'rgb(33, 37, 41)',
+                hoverOffset: 4,
+              },
+              /*{
+                label: 'net snd',
+                data: [],
+                backgroundColor: [
+                  'rgb(13, 110, 253)'
+                ],
+                hoverOffset: 4,
+              },
+              {
+                label: 'net rcv',
+                data: [],
+                backgroundColor: [
+                  'rgb(13, 110, 253)'
+                ],
+                hoverOffset: 4,
+              }*/]
+            },
+            options: { 
+              maintainAspectRatio: false,
+              animation: false,
+              elements: {
+                line: {
+                  tension: 0.1,
+                  borderWidth: 2
+                },
+                point: {
+                  pointRadius: 2,
+                }
+              },
+              scales: {
+                y: {
+                  min: 0,
+                  max: 100,
+                  ticks: {
+                    stepSize: 25,
+                    callback: function(value, index, values) {
+                      return value + '%';
+                    }
+                  }
+                },
+                x: {
+                  type: 'time',
+                }
+              },
+              layout: {
+                  padding: {
+                      top: 20
+                  }
+              },
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Resources usage'
+                  },
+                  legend: {
+                    display: true,
+                    position: 'bottom',
+                    align: 'end'
+                  }
+              }
+            }
+          });
+          function update() {
+            chart.data.datasets[0].data = stats.cpu.map(elem => {return {x: elem.time, y: elem.value * 100 / limits.cpu}});
+            chart.data.datasets[1].data = stats.mem.map(elem => {return {x: elem.time, y: elem.value * 100 / limits.mem}});
+            //chart.data.datasets[2].data = stats.net_snd.map(elem => {return {x: elem.time, y: elem.value}});
+            //chart.data.datasets[3].data = stats.net_rcv.map(elem => {return {x: elem.time, y: elem.value}});
+            chart.update();
+          }
+
+          document.addEventListener('stats_update', update);
+        })();
+      </script>
     </div>
+
+    <script>
+      document.getElementById('chart-selector-gauge').onclick = function() {
+        document.getElementById('gauges').classList.remove('d-none');
+        document.getElementById('series').classList.add('d-none');
+      }
+
+      document.getElementById('chart-selector-series').onclick = function() {
+        document.getElementById('series').classList.remove('d-none');
+        document.getElementById('gauges').classList.add('d-none');
+      }
+    </script>
+
+    <table class="table table-hover text-nowrap align-middle" id="services-table">
+      <thead>
+        <tr>
+          <th class="col-2"></th>
+          <th class="col-6">Service name</th>
+          <th class="col-12 d-none d-lg-table-cell">URL</th>
+          <th class="col-3"></th>
+          <th class="col-3"></th>
+          <th class="col-3"></th>
+          <th class="col-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="text-muted">
+          <td>
+            -
+          </td>
+          <td class="">
+            <div class="input-group input-group-sm">
+              <form action="javascript:void(0);" onsubmit="open_service_settings();">
+                <input id="serviceNameInput" type="text" maxlength="16" class="form-control" placeholder="Service Name" pattern="[0-9a-z][0-9a-z-]+" title="must consist of lowercase alphanumeric characters or '-'" required>
+              </form>
+            </div>
+          </td>
+          <td class="d-none d-lg-table-cell">
+            -
+          </td>
+          <td>
+            -
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-secondary disabled mx-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear my-1" viewBox="0 0 16 16">
+                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+              </svg>
+              Edit
+            </button>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-secondary disabled mx-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear my-1" viewBox="0 0 16 16">
+                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+              </svg>
+              Logs
+            </button>
+          </td>
+          <td style="cursor: pointer;" class="text-dark" onclick="open_service_settings()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-plus-square-fill my-2" viewBox="0 0 16 16">
+              
+            </svg>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   <div class="modal fade" id="serviceSettings" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
